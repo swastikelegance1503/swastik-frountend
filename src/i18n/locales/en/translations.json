@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "dashboards": {
+      "dashboards": "Dashboards",
+      "home": "Home"
+    },
+    "merchants": {
+      "merchants": "વેપારીઓ (Merchants)",
+      "list": "વેપારીઓની યાદી (All Merchants)"
+    },
+    "workers": {
+      "workers": "કારીગરો (Workers)",
+      "list": "કારીગરોની યાદી (All Workers)"
+    },
+    "machines": {
+      "machines": "મશીનો (Machines)",
+      "list": "મશીનોની યાદી (All Machines)",
+      "production": "મશીન પ્રોડક્શન (Daily Production)"
+    },
+    "production": {
+      "production": "પ્રોડક્શન & પગાર (Production)",
+      "summary": "પ્રોડક્શન & સેલેરી હિસાબ (Production & Salary)"
+    },
+    "machineProduction": {
+      "machineProduction": "મશીન પ્રોડક્શન (Machine Production)",
+      "daily": "મશીન પ્રોડક્શન (Daily Production)"
+    },
+    "settings": {
+      "settings": "Settings",
+      "general": "General",
+      "appearance": "Appearance"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "dashboards": {
+      "dashboards": "لوحات التحكم",
+      "home": "الرئيسية"
+    },
+    "merchants": {
+      "merchants": "التجار (Merchants)",
+      "list": "قائمة التجار"
+    },
+    "workers": {
+      "workers": "العمال (Workers)",
+      "list": "قائمة العمال"
+    },
+    "machines": {
+      "machines": "الآلات (Machines)",
+      "list": "قائمة الآلات",
+      "production": "إنتاج الآلات"
+    },
+    "production": {
+      "production": "الإنتاج والرواتب (Production)",
+      "summary": "حساب الإنتاج والراتب"
+    },
+    "machineProduction": {
+      "machineProduction": "إنتاج الآلات (Machine Production)",
+      "daily": "إنتاج الآلات اليومي"
+    },
+    "settings": {
+      "settings": "الإعدادات",
+      "general": "عام",
+      "appearance": "المظهر"
+    }
+  }
+}
