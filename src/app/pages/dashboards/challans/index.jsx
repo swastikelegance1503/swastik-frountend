@@ -42,6 +42,7 @@ import {
 } from "components/ui";
 import { Page } from "components/shared/Page";
 import axios from "utils/axios";
+import { JWT_HOST_API } from "configs/auth.config";
 import {
   generateBillPrintHtml,
   printChallanIframe,
@@ -2050,7 +2051,7 @@ export default function ChallansPage() {
 
                         {activePrintChallan?._id && (
                           <a
-                            href={`http://localhost:5000/api/challans/${activePrintChallan._id}/print`}
+                            href={`${JWT_HOST_API}/challans/${activePrintChallan._id}/print`}
                             target="_blank"
                             rel="noreferrer"
                           >
