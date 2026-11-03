@@ -296,6 +296,19 @@ export default function ChallansPage() {
     }
   };
 
+  const sanitizeMsg = (msg, fallback = "સિંક કરવામાં ભૂલ આવી") => {
+    if (!msg) return fallback;
+    const str = typeof msg === "string" ? msg : String(msg);
+    if (str.includes("<") && str.includes(">")) {
+      if (str.includes("Sorry, unable to open") || str.includes("accounts.google.com")) {
+        return "Google Apps Script Access ભૂલ: Apps Script માં Deploy > Manage deployments > ✏️ Edit > 'Who has access' ને 'Anyone' (કોઈપણ વ્યક્તિ) પસંદ કરી New version સેવ કરો.";
+      }
+      const stripped = str.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+      return stripped.length > 150 ? stripped.substring(0, 150) + "..." : stripped;
+    }
+    return str;
+  };
+
   const handleSyncSingleToDrive = async (challanId) => {
     setSyncingId(challanId);
     try {
@@ -314,10 +327,10 @@ export default function ChallansPage() {
           ),
         );
       } else {
-        toast.error(res.data?.message || "સિંક કરવામાં ભૂલ આવી. કૃપા કરીને Webhook URL તપાસો.");
+        toast.error(sanitizeMsg(res.data?.message, "સિંક કરવામાં ભૂલ આવી. કૃપા કરીને Webhook URL તપાસો."));
       }
     } catch (err) {
-      toast.error(err.message || "Google Drive સિંકમાં ભૂલ આવી");
+      toast.error(sanitizeMsg(err.message, "Google Drive સિંકમાં ભૂલ આવી"));
     } finally {
       setSyncingId(null);
     }
@@ -331,10 +344,10 @@ export default function ChallansPage() {
         toast.success(res.data.message);
         fetchChallans(true);
       } else {
-        toast.error(res.data?.message || "બેચ સિંકમાં ભૂલ આવી");
+        toast.error(sanitizeMsg(res.data?.message, "બેચ સિંકમાં ભૂલ આવી"));
       }
     } catch (err) {
-      toast.error(err.message || "Google Drive સિંકમાં ભૂલ આવી");
+      toast.error(sanitizeMsg(err.message, "Google Drive સિંકમાં ભૂલ આવી"));
     } finally {
       setSyncingAllDrive(false);
     }
