@@ -139,12 +139,16 @@ function createWindow() {
   });
 
   // Determine whether to load dev server or built production files
-  const devUrl = process.env.ELECTRON_DEV_URL || 'http://localhost:5173';
+  const devUrl = process.env.ELECTRON_START_URL || process.env.ELECTRON_DEV_URL || 'http://localhost:5173';
 
-  if (isDev && process.env.ELECTRON_START_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_START_URL);
-  } else if (isDev && !fs.existsSync(path.join(__dirname, '../dist/index.html'))) {
-    mainWindow.loadURL(devUrl);
+  if (isDev) {
+    mainWindow.loadURL(devUrl).catch(() => {
+      // Fallback to built files if dev server is unreachable
+      const indexPath = path.join(__dirname, '../dist/index.html');
+      if (fs.existsSync(indexPath)) {
+        mainWindow.loadFile(indexPath);
+      }
+    });
   } else {
     const indexPath = path.join(__dirname, '../dist/index.html');
     mainWindow.loadFile(indexPath);

@@ -82,6 +82,7 @@ export default function DeliveryChallansPage() {
   const [selectedFirm, setSelectedFirm] = useState("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [merchantFilter, setMerchantFilter] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -105,9 +106,11 @@ export default function DeliveryChallansPage() {
   const fetchMerchants = useCallback(async () => {
     try {
       const res = await axios.get("/merchants");
-      if (res.data?.success) {
-        setMerchants(res.data.data || []);
-      }
+      const list =
+        res.data?.merchants ||
+        res.data?.data ||
+        (Array.isArray(res.data) ? res.data : []);
+      setMerchants(list);
     } catch (e) {
       console.warn("Error fetching merchants:", e);
     }
@@ -122,6 +125,7 @@ export default function DeliveryChallansPage() {
       const params = {};
       if (selectedFirm !== "All") params.firm = selectedFirm;
       if (statusFilter !== "All") params.status = statusFilter;
+      if (merchantFilter !== "All") params.merchantId = merchantFilter;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
       if (search && search.trim()) params.search = search.trim();
@@ -138,7 +142,7 @@ export default function DeliveryChallansPage() {
         setIsRefreshing(false);
       }
     },
-    [selectedFirm, statusFilter, startDate, endDate, search]
+    [selectedFirm, statusFilter, merchantFilter, startDate, endDate, search]
   );
 
   useEffect(() => {
@@ -215,7 +219,7 @@ export default function DeliveryChallansPage() {
         merchantName: found.name,
         merchantAddress: found.address || "",
         merchantCity: found.city || "Surat",
-        merchantMobile: found.mobile || "",
+        merchantMobile: found.mobileNumber || found.mobile || "",
       }));
     } else {
       setFormData((prev) => ({ ...prev, merchantId: mId }));
@@ -515,6 +519,20 @@ export default function DeliveryChallansPage() {
               <option value="Pending Bill">Pending Bill (બિલ બાકી)</option>
               <option value="Billed">Billed (બિલ બની ગયેલ)</option>
               <option value="Returned">Returned (પરત)</option>
+            </select>
+
+            {/* Merchant Filter */}
+            <select
+              value={merchantFilter}
+              onChange={(e) => setMerchantFilter(e.target.value)}
+              className="h-9 text-xs rounded-xl border border-gray-200 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-200 px-2.5 focus:outline-none max-w-[160px]"
+            >
+              <option value="All">તમામ વેપારી (All Merchants)</option>
+              {merchants.map((m) => (
+                <option key={m._id} value={m._id}>
+                  {m.name}
+                </option>
+              ))}
             </select>
 
             {/* Search */}
@@ -821,40 +839,55 @@ export default function DeliveryChallansPage() {
                           <select
                             value={formData.merchantId}
                             onChange={(e) => handleSelectMerchant(e.target.value)}
-                            className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
+                            className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none mb-1.5"
                           >
-                            <option value="">-- વેપારી પસંદ કરો --</option>
+                            <option value="">-- લિસ્ટમાંથી વેપારી પસંદ કરો ({merchants.length}) --</option>
                             {merchants.map((m) => (
                               <option key={m._id} value={m._id}>
-                                {m.name} ({m.city || "Surat"})
+                                {m.name} {m.mobileNumber ? `(${m.mobileNumber})` : m.address ? `(${m.address})` : ""}
                               </option>
                             ))}
                           </select>
+                          <input
+                            type="text"
+                            value={formData.merchantName}
+                            onChange={(e) => setFormData({ ...formData, merchantName: e.target.value })}
+                            className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
+                            placeholder="વેપારીનું નામ (M/s. Name) *"
+                            required
+                          />
                         </div>
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                             સરનામું (Address)
                           </label>
-                          <input
-                            type="text"
+                          <textarea
+                            rows={3}
                             value={formData.merchantAddress}
                             onChange={(e) => setFormData({ ...formData, merchantAddress: e.target.value })}
-                            className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
-                            placeholder="દુકાન નં, માર્કેટ..."
+                            className="w-full text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 py-1.5 focus:outline-none resize-none"
+                            placeholder="દુકાન નં, માર્કેટ, રોડ..."
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                            શહેર (City)
+                            શહેર (City) & મોબાઈલ
                           </label>
                           <input
                             type="text"
                             value={formData.merchantCity}
                             onChange={(e) => setFormData({ ...formData, merchantCity: e.target.value })}
+                            className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none mb-1.5"
+                            placeholder="શહેર (City e.g. Surat)"
+                          />
+                          <input
+                            type="text"
+                            value={formData.merchantMobile}
+                            onChange={(e) => setFormData({ ...formData, merchantMobile: e.target.value })}
                             className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
-                            placeholder="Surat"
+                            placeholder="મોબાઈલ નંબર (Mobile No)"
                           />
                         </div>
                       </div>
