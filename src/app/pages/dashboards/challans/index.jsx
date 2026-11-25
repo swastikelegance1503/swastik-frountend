@@ -12,7 +12,6 @@ import {
   BuildingOffice2Icon,
   CheckCircleIcon,
   XMarkIcon,
-  CalendarDaysIcon,
   BanknotesIcon,
   ArrowTopRightOnSquareIcon,
   CloudArrowUpIcon,
@@ -105,19 +104,12 @@ export default function ChallansPage() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Active Tab: 'list' | 'summary'
-  const [activeTab, setActiveTab] = useState("list");
-
   // Filter States
   const [selectedFirm, setSelectedFirm] = useState("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
-  // Date Summary State
-  const [summaryData, setSummaryData] = useState(null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Modal State for Create / Edit
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -210,25 +202,6 @@ export default function ChallansPage() {
   }, []);
 
   // 3. Fetch Date-wise Summary
-  const fetchDateSummary = useCallback(async () => {
-    setSummaryLoading(true);
-    try {
-      const params = {};
-      if (selectedFirm !== "All") params.firm = selectedFirm;
-      if (startDate) params.startDate = startDate;
-      if (endDate) params.endDate = endDate;
-
-      const res = await axios.get("/challans/date-summary", { params });
-      if (res.data?.success) {
-        setSummaryData(res.data);
-      }
-    } catch (err) {
-      console.error("Error fetching date summary:", err);
-    } finally {
-      setSummaryLoading(false);
-    }
-  }, [selectedFirm, startDate, endDate]);
-
   useEffect(() => {
     fetchMeta();
     fetchDriveConfig();
@@ -237,12 +210,6 @@ export default function ChallansPage() {
   useEffect(() => {
     fetchChallans();
   }, [fetchChallans]);
-
-  useEffect(() => {
-    if (activeTab === "summary") {
-      fetchDateSummary();
-    }
-  }, [activeTab, fetchDateSummary]);
 
   // Overall Stats Calculation
   const stats = useMemo(() => {
@@ -259,25 +226,6 @@ export default function ChallansPage() {
     );
     return { totalBills, totalQty, taxableAmount, totalGst, grandTotal };
   }, [challans]);
-
-  // Quick Date Filter Presets
-  const handleDatePreset = (preset) => {
-    if (preset === "today") {
-      const today = dayjs().format("YYYY-MM-DD");
-      setStartDate(today);
-      setEndDate(today);
-    } else if (preset === "yesterday") {
-      const yest = dayjs().subtract(1, "day").format("YYYY-MM-DD");
-      setStartDate(yest);
-      setEndDate(yest);
-    } else if (preset === "month") {
-      setStartDate(dayjs().startOf("month").format("YYYY-MM-DD"));
-      setEndDate(dayjs().endOf("month").format("YYYY-MM-DD"));
-    } else {
-      setStartDate("");
-      setEndDate("");
-    }
-  };
 
   // Google Drive Action Handlers (swastikelegance065@gmail.com)
   const handleSaveDriveConfig = async (e) => {
@@ -704,6 +652,43 @@ export default function ChallansPage() {
     if (!challanToDelete) return;
     setDeleting(true);
     try {
+      const webhookUrl =
+        driveConfig?.webhookUrl ||
+        "https://script.google.com/macros/s/AKfycbzY7U2udadIQM-p-DsJ2F5HC4olnbR_ZQLPaxleLuZsA6LqebhXV-IA8EYfL_f0qVAD/exec";
+      const cleanFirm = (challanToDelete.firmName || "Firm").replace(/[^a-zA-Z0-9_-]/g, "_");
+      const cleanMerch = (challanToDelete.merchantName || "Customer").replace(/[^a-zA-Z0-9_-]/g, "_");
+      const fileName = `Bill_${challanToDelete.billNo || "0"}_${cleanFirm}_${cleanMerch}.html`;
+
+      // 1. Desktop Electron App માંથી સીધું જ Google Drive & Sheet માંથી રો ડિલીટ કરો
+      if (window?.electronAPI?.deleteFromDrive) {
+        try {
+          const driveRes = await window.electronAPI.deleteFromDrive({
+            webhookUrl,
+            billNo: String(challanToDelete.billNo || ""),
+            firmName: challanToDelete.firmName || "",
+            fileName,
+          });
+          console.log("Desktop Google Sheet delete result:", driveRes);
+        } catch (e) {
+          console.warn("Desktop Drive delete error:", e);
+        }
+      } else if (webhookUrl && webhookUrl.startsWith("http")) {
+        // બ્રાઉઝર માટે Webhook કોલ
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "DELETE_CHALLAN",
+            billNo: String(challanToDelete.billNo || ""),
+            challanNo: String(challanToDelete.challanNo || challanToDelete.billNo || ""),
+            firmName: challanToDelete.firmName || "",
+            fileName,
+          }),
+          mode: "no-cors",
+        }).catch((e) => console.warn("Browser Drive delete warning:", e));
+      }
+
+      // 2. ડેટાબેઝમાંથી ડિલીટ કરો
       await axios.delete(`/challans/${challanToDelete._id}`);
       toast.success(`બિલ #${challanToDelete.billNo} સફળતાપૂર્વક ડિલીટ થઈ ગયું!`);
       setIsDeleteModalOpen(false);
@@ -736,7 +721,7 @@ export default function ChallansPage() {
                   </span>
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન પેઢી મુજબ બિલિંગ, પ્રિન્ટ, PDF અને તારીખ મુજબ હિસાબ
+                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન પેઢી મુજબ બિલિંગ, પ્રિન્ટ અને PDF મેનેજમેન્ટ
                 </p>
               </div>
             </div>
@@ -950,38 +935,13 @@ export default function ChallansPage() {
         </div>
 
         {/* =================================================================== */}
-        {/* TABS & CONTROLS TOOLBAR */}
+        {/* CONTROLS TOOLBAR */}
         {/* =================================================================== */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4">
-          {/* Tabs */}
-          <div className="inline-flex rounded-xl bg-gray-100 p-1 dark:bg-dark-600 self-start">
-            <button
-              type="button"
-              onClick={() => setActiveTab("list")}
-              className={clsx(
-                "flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all",
-                activeTab === "list"
-                  ? "bg-white text-gray-900 shadow-sm dark:bg-dark-700 dark:text-white"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200",
-              )}
-            >
-              <DocumentTextIcon className="h-4 w-4" />
-              ચલાણ / બિલ લિસ્ટ ({challans.length})
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("summary")}
-              className={clsx(
-                "flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all",
-                activeTab === "summary"
-                  ? "bg-white text-gray-900 shadow-sm dark:bg-dark-700 dark:text-white"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200",
-              )}
-            >
-              <CalendarDaysIcon className="h-4 w-4" />
-              તારીખ મુજબ હિસાબ (Date-wise Summary)
-            </button>
+          {/* List Title Badge */}
+          <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-dark-600 px-3.5 py-2 text-xs font-semibold text-gray-900 dark:text-white self-start">
+            <DocumentTextIcon className="h-4 w-4 text-primary-500" />
+            <span>ચલાણ / બિલ લિસ્ટ ({challans.length})</span>
           </div>
 
           {/* Date & Search Filters */}
@@ -1050,32 +1010,13 @@ export default function ChallansPage() {
                 </button>
               )}
             </div>
-
-            {/* Quick Date Presets */}
-            <div className="hidden sm:flex items-center gap-1 text-xs">
-              <button
-                type="button"
-                onClick={() => handleDatePreset("today")}
-                className="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-dark-600 dark:hover:bg-dark-500 text-gray-700 dark:text-gray-300"
-              >
-                આજે
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDatePreset("month")}
-                className="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-dark-600 dark:hover:bg-dark-500 text-gray-700 dark:text-gray-300"
-              >
-                આ મહિને
-              </button>
-            </div>
           </div>
         </div>
 
         {/* =================================================================== */}
-        {/* TAB 1: CHALLANS LIST TABLE */}
+        {/* CHALLANS LIST TABLE */}
         {/* =================================================================== */}
-        {activeTab === "list" && (
-          <>
+        <>
             {loading && challans.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <Spinner className="h-10 w-10 text-primary-500" />
@@ -1329,107 +1270,7 @@ export default function ChallansPage() {
                 </div>
               </Card>
             )}
-          </>
-        )}
-
-        {/* =================================================================== */}
-        {/* TAB 2: DATE-WISE SUMMARY & REPORTS */}
-        {/* =================================================================== */}
-        {activeTab === "summary" && (
-          <div className="space-y-4">
-            {summaryLoading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Spinner className="h-10 w-10 text-primary-500" />
-                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                  તારીખ મુજબ સમરી તૈયાર થઈ રહી છે...
-                </p>
-              </div>
-            ) : !summaryData || !summaryData.dailyBreakdown || summaryData.dailyBreakdown.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 dark:border-dark-600 p-12 text-center bg-white/50 dark:bg-dark-700/50">
-                <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-white">
-                  આ તારીખગાળા માટે કોઈ સમરી ડેટા નથી
-                </h3>
-              </div>
-            ) : (
-              <Card className="overflow-hidden rounded-2xl border border-gray-200 dark:border-dark-600">
-                <div className="p-4 bg-gray-50/70 dark:bg-dark-800/80 border-b border-gray-200 dark:border-dark-600 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      તારીખ વાઈઝ ટોટલ સમરી ({summaryData.firm})
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      દરેક તારીખનું બિલ કાઉન્ટ, ક્વોન્ટિટી અને રકમનો હિસાબ
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs text-gray-400">કુલ ટર્નઓવર:</span>
-                    <div className="text-lg font-extrabold text-emerald-600 font-mono">
-                      ₹ {formatCurrency(summaryData.overallTotals?.grandTotal)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <Table className="w-full text-left">
-                    <THead className="bg-gray-100/70 dark:bg-dark-700 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      <Tr>
-                        <Th className="py-3 px-4 font-semibold">તારીખ (Date)</Th>
-                        <Th className="py-3 px-4 font-semibold text-center">બિલ સંખ્યા</Th>
-                        <Th className="py-3 px-4 font-semibold text-center">કુલ જથ્થો (Qty)</Th>
-                        <Th className="py-3 px-4 font-semibold text-right">કરપાત્ર રકમ (Taxable)</Th>
-                        <Th className="py-3 px-4 font-semibold text-right">GST રકમ</Th>
-                        <Th className="py-3 px-4 font-semibold text-right">ગ્રાન્ડ ટોટલ (Total)</Th>
-                        <Th className="py-3 px-4 font-semibold text-center">એક્શન</Th>
-                      </Tr>
-                    </THead>
-                    <TBody className="divide-y divide-gray-150 dark:divide-dark-600 text-sm">
-                      {summaryData.dailyBreakdown.map((row) => (
-                        <Tr
-                          key={row._id}
-                          className="hover:bg-gray-50/70 dark:hover:bg-dark-600/40"
-                        >
-                          <Td className="py-3.5 px-4 font-bold text-gray-900 dark:text-white whitespace-nowrap">
-                            📅 {formatDate(row._id)}
-                          </Td>
-                          <Td className="py-3.5 px-4 text-center font-bold text-primary-600">
-                            {row.totalBills} બિલો
-                          </Td>
-                          <Td className="py-3.5 px-4 text-center font-mono">
-                            {row.totalQty}
-                          </Td>
-                          <Td className="py-3.5 px-4 text-right font-mono">
-                            ₹ {formatCurrency(row.taxableAmount)}
-                          </Td>
-                          <Td className="py-3.5 px-4 text-right font-mono text-purple-600">
-                            ₹ {formatCurrency(row.totalGst)}
-                          </Td>
-                          <Td className="py-3.5 px-4 text-right font-bold font-mono text-emerald-600 text-base">
-                            ₹ {formatCurrency(row.grandTotal)}
-                          </Td>
-                          <Td className="py-3.5 px-4 text-center">
-                            <Button
-                              variant="soft"
-                              color="primary"
-                              className="h-7 text-xs px-2.5"
-                              onClick={() => {
-                                setStartDate(row._id);
-                                setEndDate(row._id);
-                                setActiveTab("list");
-                              }}
-                            >
-                              બિલો જુઓ
-                            </Button>
-                          </Td>
-                        </Tr>
-                      ))}
-                    </TBody>
-                  </Table>
-                </div>
-              </Card>
-            )}
-          </div>
-        )}
+        </>
 
         {/* =================================================================== */}
         {/* CREATE / EDIT CHALLAN MODAL */}

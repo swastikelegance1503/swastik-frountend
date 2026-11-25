@@ -1,5 +1,5 @@
 // Import Dependencies
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, createHashRouter } from "react-router";
 
 // Local Imports
 import Root from "app/layouts/Root";
@@ -11,7 +11,15 @@ import { publicRoutes } from "./public";
 
 // ----------------------------------------------------------------------
 
-const router = createBrowserRouter([
+const isElectron =
+  typeof window !== "undefined" &&
+  (Boolean(window.electronAPI) ||
+    window.navigator.userAgent.includes("Electron") ||
+    window.location.protocol === "file:");
+
+const createRouter = isElectron ? createHashRouter : createBrowserRouter;
+
+const router = createRouter([
   {
     id: "root",
     Component: Root,
