@@ -1,4 +1,4 @@
-import { HomeIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, DocumentCheckIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import DashboardsIcon from 'assets/dualicons/dashboards.svg?react';
 import { NAV_TYPE_ROOT, NAV_TYPE_ITEM } from 'constants/app.constant';
 
@@ -24,7 +24,14 @@ export const dashboards = {
             id: 'dashboards.challans',
             path: path(ROOT_DASHBOARDS, '/challans'),
             type: NAV_TYPE_ITEM,
-            title: 'ચલાણ & બિલિંગ (Challans & Bills)',
+            title: 'ચલાણ (Delivery Challans)',
+            Icon: DocumentCheckIcon,
+        },
+        {
+            id: 'dashboards.bills',
+            path: path(ROOT_DASHBOARDS, '/bills'),
+            type: NAV_TYPE_ITEM,
+            title: 'બિલિંગ (Billing & Invoices)',
             Icon: DocumentTextIcon,
         },
     ]

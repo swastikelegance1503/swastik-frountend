@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router";
 import {
   DocumentTextIcon,
+  DocumentCheckIcon,
   PlusIcon,
   PencilSquareIcon,
   TrashIcon,
@@ -173,8 +174,8 @@ export default function ChallansPage() {
         }
       })
       .catch((err) => {
-        console.error("Error fetching challans:", err);
-        toast.error(err.message || "ચલાણ ડેટા મેળવવામાં ભૂલ આવી");
+        console.error("Error fetching bills:", err);
+        toast.error(err.message || "બિલ ડેટા મેળવવામાં ભૂલ આવી");
       })
       .finally(() => {
         setLoading(false);
@@ -594,10 +595,10 @@ export default function ChallansPage() {
 
       if (isEditing) {
         await axios.put(`/challans/${editingId}`, payload);
-        toast.success("ચલાણ સફળતાપૂર્વક અપડેટ થઈ ગયું!");
+        toast.success("બિલ સફળતાપૂર્વક અપડેટ થઈ ગયું!");
       } else {
         const res = await axios.post("/challans", payload);
-        toast.success("નવું ચલાણ / બિલ સફળતાપૂર્વક બની ગયું!");
+        toast.success("નવું બિલ સફળતાપૂર્વક બની ગયું!");
         // Ask or show print modal
         if (res.data?.challan) {
           setActivePrintChallan(res.data.challan);
@@ -609,7 +610,7 @@ export default function ChallansPage() {
       await fetchChallans();
     } catch (err) {
       console.error("Save error:", err);
-      toast.error(err.message || "ચલાણ સેવ કરવામાં ભૂલ આવી");
+      toast.error(err.message || "બિલ સેવ કરવામાં ભૂલ આવી");
     } finally {
       setSubmitting(false);
     }
@@ -702,7 +703,7 @@ export default function ChallansPage() {
   };
 
   return (
-    <Page title="ચલાણ & બિલિંગ (Challans & Bills)">
+    <Page title="બિલિંગ મેનેજમેન્ટ (Billing & Invoices)">
       <div className="transition-content w-full px-(--margin-x) pt-5 lg:pt-6 pb-12">
         {/* =================================================================== */}
         {/* HERO HEADER */}
@@ -715,19 +716,27 @@ export default function ChallansPage() {
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
-                  ચલાણ & બિલિંગ મેનેજમેન્ટ
+                  બિલિંગ મેનેજમેન્ટ
                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    (Challans & Bills)
+                    (Billing & Invoices)
                   </span>
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન પેઢી મુજબ બિલિંગ, પ્રિન્ટ અને PDF મેનેજમેન્ટ
+                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન પેઢી મુજબ બિલિંગ, પ્રિન્ટ અને GST ટેક્સ ઇન્વોઇસ
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* Delivery Challans Module Switcher Button */}
+            <Link to="/dashboards/challans">
+              <Button variant="outlined" color="primary" className="h-10 text-xs sm:text-sm font-semibold">
+                <DocumentCheckIcon className="h-4 w-4 mr-1.5" />
+                ચલાણ મોડ્યુલ (Challans)
+              </Button>
+            </Link>
+
             {/* Google Drive Sync Settings Button */}
             <Button
               variant={driveConfig.isConfigured ? "soft" : "outlined"}
@@ -774,7 +783,7 @@ export default function ChallansPage() {
               onClick={handleOpenCreate}
             >
               <PlusIcon className="h-4 w-4 mr-1.5 stroke-[2.5]" />
-              નવું ચલાણ / બિલ બનાવો (Create Bill)
+              નવું બિલ બનાવો (Create Bill)
             </Button>
           </div>
         </div>
@@ -794,7 +803,7 @@ export default function ChallansPage() {
                   {stats.totalBills}
                 </h3>
                 <p className="mt-0.5 text-xs text-primary-600 dark:text-primary-400">
-                  ચલાણ સંખ્યા
+                  બિલ સંખ્યા
                 </p>
               </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
@@ -939,9 +948,9 @@ export default function ChallansPage() {
         {/* =================================================================== */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4">
           {/* List Title Badge */}
-          <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-dark-600 px-3.5 py-2 text-xs font-semibold text-gray-900 dark:text-white self-start">
+          <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-dark-600 px-3.5 py-2 text-xs font-semibold text-gray-900 dark:white self-start">
             <DocumentTextIcon className="h-4 w-4 text-primary-500" />
-            <span>ચલાણ / બિલ લિસ્ટ ({challans.length})</span>
+            <span>બિલ લિસ્ટ ({challans.length})</span>
           </div>
 
           {/* Date & Search Filters */}
@@ -1021,7 +1030,7 @@ export default function ChallansPage() {
               <div className="flex flex-col items-center justify-center py-20">
                 <Spinner className="h-10 w-10 text-primary-500" />
                 <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                  ચલાણ ડેટા લોડ થઈ રહ્યો છે...
+                  બિલ ડેટા લોડ થઈ રહ્યો છે...
                 </p>
               </div>
             ) : challans.length === 0 ? (
@@ -1029,7 +1038,7 @@ export default function ChallansPage() {
               <div className="rounded-2xl border border-dashed border-gray-300 dark:border-dark-600 p-12 text-center bg-white/50 dark:bg-dark-700/50">
                 <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-white">
-                  કોઈ ચલાણ / બિલ મળ્યું નથી
+                  કોઈ બિલ મળ્યું નથી
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   {selectedFirm !== "All" || search || startDate
@@ -1038,7 +1047,7 @@ export default function ChallansPage() {
                 </p>
                 <div className="mt-6 flex justify-center gap-3">
                   <Button variant="filled" color="primary" onClick={handleOpenCreate}>
-                    <PlusIcon className="h-4 w-4 mr-1.5" /> નવું ચલાણ બનાવો
+                    <PlusIcon className="h-4 w-4 mr-1.5" /> નવું બિલ બનાવો
                   </Button>
                 </div>
               </div>
@@ -1049,7 +1058,7 @@ export default function ChallansPage() {
                     <THead className="bg-gray-50 dark:bg-dark-800 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <Tr>
                         <Th className="py-3.5 px-3 font-semibold text-center">#</Th>
-                        <Th className="py-3.5 px-3 font-semibold">બિલ & ચલાણ નં</Th>
+                        <Th className="py-3.5 px-3 font-semibold">બિલ નં</Th>
                         <Th className="py-3.5 px-3 font-semibold">તારીખ</Th>
                         <Th className="py-3.5 px-3 font-semibold">પેઢી (Firm)</Th>
                         <Th className="py-3.5 px-4 font-semibold">મર્ચન્ટ / વેપારી</Th>
@@ -1314,11 +1323,11 @@ export default function ChallansPage() {
                         <div>
                           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                             {isEditing
-                              ? `ચલાણ / બિલ સુધારો (Edit Bill #${formData.billNo})`
-                              : "નવું ચલાણ / બિલ બનાવો (Create New Bill)"}
+                              ? `બિલ સુધારો (Edit Bill #${formData.billNo})`
+                              : "નવું બિલ બનાવો (Create New Bill)"}
                           </h3>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            પેઢી પસંદ કરી વેપારીનું નવું ચલાણ અને બિલિંગ એન્ટ્રી કરો
+                            પેઢી પસંદ કરી વેપારીની નવી બિલિંગ એન્ટ્રી કરો
                           </p>
                         </div>
                       </div>
@@ -2064,7 +2073,7 @@ export default function ChallansPage() {
                             Google Drive & Google Sheet ઓટો-સેવ
                           </h3>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            ચલાણ અને બિલિંગ ડેટા swastikelegance065@gmail.com ડ્રાઇવમાં સેવ કરો
+                            બિલિંગ ડેટા swastikelegance065@gmail.com ડ્રાઇવમાં સેવ કરો
                           </p>
                         </div>
                       </div>
@@ -2144,7 +2153,7 @@ export default function ChallansPage() {
                               className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
                             />
                             <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                              નવું ચલાણ બનતા જ આપમેળે Drive અને Sheet માં સેવ કરો (Auto-Sync)
+                              નવું બિલ બનતા જ આપમેળે Drive અને Sheet માં સેવ કરો (Auto-Sync)
                             </span>
                           </label>
 

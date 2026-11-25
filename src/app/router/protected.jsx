@@ -36,6 +36,12 @@ const protectedRoutes = {
             {
               path: "challans",
               lazy: async () => ({
+                Component: (await import("app/pages/delivery-challans")).default,
+              }),
+            },
+            {
+              path: "bills",
+              lazy: async () => ({
                 Component: (await import("app/pages/dashboards/challans")).default,
               }),
             },
@@ -44,6 +50,10 @@ const protectedRoutes = {
         {
           path: "challans",
           element: <Navigate to="/dashboards/challans" replace />,
+        },
+        {
+          path: "bills",
+          element: <Navigate to="/dashboards/bills" replace />,
         },
         {
           path: "merchants",
