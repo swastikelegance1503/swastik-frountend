@@ -53,35 +53,27 @@ const protectedRoutes = {
         },
         {
           path: "workers",
-          lazy: async () => ({
-            Component: (await import("app/pages/workers")).default,
-          }),
+          element: <Navigate to="/dashboards" replace />,
         },
         {
           path: "workers/salary",
-          lazy: async () => ({
-            Component: (await import("app/pages/workers-salary")).default,
-          }),
+          element: <Navigate to="/dashboards" replace />,
         },
         {
           path: "workers-salary",
-          element: <Navigate to="/workers/salary" replace />,
-        },
-        {
-          path: "production",
-          element: <Navigate to="/machine-production" replace />,
+          element: <Navigate to="/dashboards" replace />,
         },
         {
           path: "machines",
-          lazy: async () => ({
-            Component: (await import("app/pages/machines")).default,
-          }),
+          element: <Navigate to="/dashboards" replace />,
         },
         {
           path: "machine-production",
-          lazy: async () => ({
-            Component: (await import("app/pages/machine-production")).default,
-          }),
+          element: <Navigate to="/dashboards" replace />,
+        },
+        {
+          path: "production",
+          element: <Navigate to="/dashboards" replace />,
         },
       ],
     },
