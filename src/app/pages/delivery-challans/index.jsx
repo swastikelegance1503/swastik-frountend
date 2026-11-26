@@ -1079,13 +1079,15 @@ export default function DeliveryChallansPage() {
                     </div>
 
                     {/* Clean Iframe Preview - 100% exact print preview without CSS bleed or internal scrollbars */}
-                    <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 dark:bg-dark-900 p-1 flex justify-center overflow-hidden">
+                    <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-200/80 dark:bg-dark-900 p-2 flex justify-center overflow-auto max-h-[75vh]">
                       {activePrintChallan && (
-                        <iframe
-                          srcDoc={generateDeliveryChallanPrintHtml(activePrintChallan)}
-                          title="Challan Print Preview (Half A4 / A5)"
-                          className="w-full h-[520px] max-w-[500px] border-0 rounded-lg bg-white shadow-sm"
-                        />
+                        <div className="w-full max-w-[480px] shadow-lg rounded overflow-hidden bg-white border border-gray-300">
+                          <iframe
+                            srcDoc={generateDeliveryChallanPrintHtml(activePrintChallan)}
+                            title="Challan Print Preview (Half A4 / A5)"
+                            className="w-full h-[540px] border-0 block"
+                          />
+                        </div>
                       )}
                     </div>
 

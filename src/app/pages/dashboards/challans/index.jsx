@@ -1928,15 +1928,17 @@ export default function ChallansPage() {
                     </div>
 
                     {/* Interactive HTML Preview Box - Full A4 Page Iframe */}
-                    {activePrintChallan && (
-                      <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 dark:bg-dark-900 p-1 flex justify-center overflow-hidden">
-                        <iframe
-                          srcDoc={generateBillPrintHtml(activePrintChallan)}
-                          title="Bill Print Preview (Full A4)"
-                          className="w-full h-[75vh] min-h-[640px] border-0 rounded-lg bg-white shadow-sm"
-                        />
-                      </div>
-                    )}
+                    <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-200/80 dark:bg-dark-900 p-2 flex justify-center overflow-auto max-h-[78vh]">
+                      {activePrintChallan && (
+                        <div className="w-full max-w-[760px] shadow-lg rounded overflow-hidden bg-white border border-gray-300">
+                          <iframe
+                            srcDoc={generateBillPrintHtml(activePrintChallan)}
+                            title="Bill Print Preview (Full A4)"
+                            className="w-full h-[76vh] min-h-[660px] border-0 block"
+                          />
+                        </div>
+                      )}
+                    </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-gray-150 dark:border-dark-600 text-xs text-gray-500">
                       <span className="font-medium text-gray-600 dark:text-gray-300">
