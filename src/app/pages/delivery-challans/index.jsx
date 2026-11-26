@@ -1,6 +1,5 @@
 // Import Dependencies
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link } from "react-router";
 import {
   DocumentCheckIcon,
   PlusIcon,
@@ -358,12 +357,12 @@ export default function DeliveryChallansPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Link to="/dashboards/bills">
+            {/* <Link to="/dashboards/bills">
               <Button variant="outlined" color="primary" className="h-10 text-xs sm:text-sm">
                 <BanknotesIcon className="h-4 w-4 mr-1.5" />
                 બિલિંગ મોડ્યુલ (Bills)
               </Button>
-            </Link>
+            </Link> */}
 
             <Button
               variant="outlined"
@@ -1040,37 +1039,67 @@ export default function DeliveryChallansPage() {
                   leave="ease-in duration-200"
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
-                  className="w-full max-w-2xl"
+                  className="w-full max-w-2xl sm:max-w-3xl"
                 >
-                  <DialogPanel className="w-full transform rounded-2xl bg-white dark:bg-dark-700 p-6 text-left align-middle shadow-xl transition-all border border-gray-200 dark:border-dark-600">
+                  <DialogPanel className="w-full transform rounded-2xl bg-white dark:bg-dark-700 p-4 sm:p-5 text-left align-middle shadow-2xl transition-all border border-gray-200 dark:border-dark-600">
                     <div className="flex items-center justify-between pb-3 border-b border-gray-150 dark:border-dark-600">
-                      <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <PrinterIcon className="h-5 w-5 text-red-500" />
-                        ચલાણ પ્રિન્ટ પ્રીવ્યૂ (#{activePrintChallan?.challanNo})
-                      </h3>
-                      <button type="button" onClick={() => setIsPrintModalOpen(false)} className="text-gray-400">
-                        <XMarkIcon className="h-5 w-5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-950/50 text-red-600">
+                          <PrinterIcon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            ચલાણ પ્રિન્ટ પ્રીવ્યૂ (#{activePrintChallan?.challanNo})
+                          </h3>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                            {activePrintChallan?.firmName || "Swastik Art"} • {activePrintChallan?.merchantName}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="solid"
+                          color="error"
+                          size="sm"
+                          className="h-8 text-xs font-semibold px-3"
+                          onClick={handlePrintNow}
+                        >
+                          <PrinterIcon className="h-3.5 w-3.5 mr-1" />
+                          પ્રિન્ટ (Print)
+                        </Button>
+                        <button
+                          type="button"
+                          onClick={() => setIsPrintModalOpen(false)}
+                          className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-600"
+                        >
+                          <XMarkIcon className="h-5 w-5" />
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="my-4 max-h-[70vh] overflow-y-auto border border-gray-200 dark:border-dark-600 rounded-xl p-2 bg-gray-50 dark:bg-dark-800">
+                    {/* Clean Iframe Preview - 100% exact print preview without CSS bleed or internal scrollbars */}
+                    <div className="my-3 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 dark:bg-dark-900 p-1 flex justify-center overflow-hidden">
                       {activePrintChallan && (
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: generateDeliveryChallanPrintHtml(activePrintChallan),
-                          }}
+                        <iframe
+                          srcDoc={generateDeliveryChallanPrintHtml(activePrintChallan)}
+                          title="Challan Print Preview"
+                          className="w-full h-[580px] border-0 rounded-lg bg-white shadow-sm"
                         />
                       )}
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-150 dark:border-dark-600">
-                      <Button variant="outlined" color="neutral" onClick={() => setIsPrintModalOpen(false)}>
-                        બંધ કરો
-                      </Button>
-                      <Button variant="solid" color="error" onClick={handlePrintNow}>
-                        <PrinterIcon className="h-4 w-4 mr-1.5" />
-                        હમણાં પ્રિન્ટ કરો (Print)
-                      </Button>
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-150 dark:border-dark-600 text-xs text-gray-500">
+                      <span>A5 સાઇઝ / સુરત લાલ ચલાણ સ્લિપ ડિઝાઇન</span>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outlined" color="neutral" size="sm" onClick={() => setIsPrintModalOpen(false)}>
+                          બંધ કરો
+                        </Button>
+                        <Button variant="solid" color="error" size="sm" onClick={handlePrintNow}>
+                          <PrinterIcon className="h-3.5 w-3.5 mr-1" />
+                          હમણાં પ્રિન્ટ કરો (Print)
+                        </Button>
+                      </div>
                     </div>
                   </DialogPanel>
                 </TransitionChild>

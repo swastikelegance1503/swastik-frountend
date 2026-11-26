@@ -1,9 +1,7 @@
 // Import Dependencies
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link } from "react-router";
 import {
   DocumentTextIcon,
-  DocumentCheckIcon,
   PlusIcon,
   PencilSquareIcon,
   TrashIcon,
@@ -717,25 +715,19 @@ export default function ChallansPage() {
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
                   બિલિંગ મેનેજમેન્ટ
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    (Billing & Invoices)
-                  </span>
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન પેઢી મુજબ બિલિંગ, પ્રિન્ટ અને GST ટેક્સ ઇન્વોઇસ
-                </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Delivery Challans Module Switcher Button */}
-            <Link to="/dashboards/challans">
+            {/* <Link to="/dashboards/challans">
               <Button variant="outlined" color="primary" className="h-10 text-xs sm:text-sm font-semibold">
                 <DocumentCheckIcon className="h-4 w-4 mr-1.5" />
                 ચલાણ મોડ્યુલ (Challans)
               </Button>
-            </Link>
+            </Link> */}
 
             {/* Google Drive Sync Settings Button */}
             <Button
@@ -756,12 +748,12 @@ export default function ChallansPage() {
               )}
             </Button>
 
-            <Link to="/dashboards/home">
+            {/* <Link to="/dashboards/home">
               <Button variant="outlined" color="neutral" className="h-10 text-xs sm:text-sm">
                 <BuildingOffice2Icon className="h-4 w-4 mr-1.5" />
                 ફર્મ પ્રોફાઇલ (Profiles)
               </Button>
-            </Link>
+            </Link> */}
 
             <Button
               variant="outlined"
@@ -797,7 +789,7 @@ export default function ChallansPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  કુલ બિલો (Bills)
+                  કુલ બિલો
                 </p>
                 <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
                   {stats.totalBills}
@@ -817,7 +809,7 @@ export default function ChallansPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  કુલ ક્વોન્ટિટી (Qty)
+                  કુલ ક્વોન્ટિટી
                 </p>
                 <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
                   {stats.totalQty}
@@ -1026,259 +1018,259 @@ export default function ChallansPage() {
         {/* CHALLANS LIST TABLE */}
         {/* =================================================================== */}
         <>
-            {loading && challans.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Spinner className="h-10 w-10 text-primary-500" />
-                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                  બિલ ડેટા લોડ થઈ રહ્યો છે...
-                </p>
+          {loading && challans.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Spinner className="h-10 w-10 text-primary-500" />
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                બિલ ડેટા લોડ થઈ રહ્યો છે...
+              </p>
+            </div>
+          ) : challans.length === 0 ? (
+            /* Empty State */
+            <div className="rounded-2xl border border-dashed border-gray-300 dark:border-dark-600 p-12 text-center bg-white/50 dark:bg-dark-700/50">
+              <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-white">
+                કોઈ બિલ મળ્યું નથી
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {selectedFirm !== "All" || search || startDate
+                  ? "પસંદ કરેલા ફિલ્ટર માટે કોઈ રેકોર્ડ નથી."
+                  : "હજુ સુધી કોઈ બિલ બનેલ નથી. નવું બિલ બનાવવા માટે નીચેનું બટન દબાવો."}
+              </p>
+              <div className="mt-6 flex justify-center gap-3">
+                <Button variant="filled" color="primary" onClick={handleOpenCreate}>
+                  <PlusIcon className="h-4 w-4 mr-1.5" /> નવું બિલ બનાવો
+                </Button>
               </div>
-            ) : challans.length === 0 ? (
-              /* Empty State */
-              <div className="rounded-2xl border border-dashed border-gray-300 dark:border-dark-600 p-12 text-center bg-white/50 dark:bg-dark-700/50">
-                <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-white">
-                  કોઈ બિલ મળ્યું નથી
-                </h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  {selectedFirm !== "All" || search || startDate
-                    ? "પસંદ કરેલા ફિલ્ટર માટે કોઈ રેકોર્ડ નથી."
-                    : "હજુ સુધી કોઈ બિલ બનેલ નથી. નવું બિલ બનાવવા માટે નીચેનું બટન દબાવો."}
-                </p>
-                <div className="mt-6 flex justify-center gap-3">
-                  <Button variant="filled" color="primary" onClick={handleOpenCreate}>
-                    <PlusIcon className="h-4 w-4 mr-1.5" /> નવું બિલ બનાવો
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Card className="overflow-hidden rounded-2xl border border-gray-200 dark:border-dark-600">
-                <div className="overflow-x-auto">
-                  <Table className="w-full text-left">
-                    <THead className="bg-gray-50 dark:bg-dark-800 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      <Tr>
-                        <Th className="py-3.5 px-3 font-semibold text-center">#</Th>
-                        <Th className="py-3.5 px-3 font-semibold">બિલ નં</Th>
-                        <Th className="py-3.5 px-3 font-semibold">તારીખ</Th>
-                        <Th className="py-3.5 px-3 font-semibold">પેઢી (Firm)</Th>
-                        <Th className="py-3.5 px-4 font-semibold">મર્ચન્ટ / વેપારી</Th>
-                        <Th className="py-3.5 px-3 font-semibold text-center">આઇટમ્સ / જથ્થો</Th>
-                        <Th className="py-3.5 px-3 font-semibold">GST વિગત</Th>
-                        <Th className="py-3.5 px-4 font-semibold text-right">કુલ રકમ (Total)</Th>
-                        <Th className="py-3.5 px-3 font-semibold text-center">સ્ટેટસ</Th>
-                        <Th className="py-3.5 px-3 font-semibold text-center">Google Drive</Th>
-                        <Th className="py-3.5 px-4 font-semibold text-right">એક્શન્સ</Th>
-                      </Tr>
-                    </THead>
-                    <TBody className="divide-y divide-gray-150 dark:divide-dark-600 text-sm">
-                      {challans.map((c, idx) => {
-                        const isSwastik = c.firmName?.toLowerCase().includes("swastik");
-                        return (
-                          <Tr
-                            key={c._id}
-                            className="transition-colors hover:bg-gray-50/70 dark:hover:bg-dark-600/40"
-                          >
-                            <Td className="py-4 px-3 text-center font-mono text-xs text-gray-400">
-                              {idx + 1}
-                            </Td>
+            </div>
+          ) : (
+            <Card className="overflow-hidden rounded-2xl border border-gray-200 dark:border-dark-600">
+              <div className="overflow-x-auto">
+                <Table className="w-full text-left">
+                  <THead className="bg-gray-50 dark:bg-dark-800 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <Tr>
+                      <Th className="py-3.5 px-3 font-semibold text-center">#</Th>
+                      <Th className="py-3.5 px-3 font-semibold">બિલ નં</Th>
+                      <Th className="py-3.5 px-3 font-semibold">તારીખ</Th>
+                      <Th className="py-3.5 px-3 font-semibold">પેઢી (Firm)</Th>
+                      <Th className="py-3.5 px-4 font-semibold">મર્ચન્ટ / વેપારી</Th>
+                      <Th className="py-3.5 px-3 font-semibold text-center">આઇટમ્સ / જથ્થો</Th>
+                      <Th className="py-3.5 px-3 font-semibold">GST વિગત</Th>
+                      <Th className="py-3.5 px-4 font-semibold text-right">કુલ રકમ (Total)</Th>
+                      <Th className="py-3.5 px-3 font-semibold text-center">સ્ટેટસ</Th>
+                      <Th className="py-3.5 px-3 font-semibold text-center">Google Drive</Th>
+                      <Th className="py-3.5 px-4 font-semibold text-right">એક્શન્સ</Th>
+                    </Tr>
+                  </THead>
+                  <TBody className="divide-y divide-gray-150 dark:divide-dark-600 text-sm">
+                    {challans.map((c, idx) => {
+                      const isSwastik = c.firmName?.toLowerCase().includes("swastik");
+                      return (
+                        <Tr
+                          key={c._id}
+                          className="transition-colors hover:bg-gray-50/70 dark:hover:bg-dark-600/40"
+                        >
+                          <Td className="py-4 px-3 text-center font-mono text-xs text-gray-400">
+                            {idx + 1}
+                          </Td>
 
-                            {/* Bill & Challan No */}
-                            <Td className="py-4 px-3 whitespace-nowrap">
-                              <div className="flex flex-col">
-                                <span className="font-bold text-base font-mono text-gray-900 dark:text-white">
-                                  #{c.billNo}
-                                </span>
-                                <div className="flex items-center gap-1 text-[11px] text-gray-500">
-                                  {c.bookNo && <span>Book: {c.bookNo}</span>}
-                                  {c.challanNo && <span>Ch: {c.challanNo}</span>}
-                                </div>
+                          {/* Bill & Challan No */}
+                          <Td className="py-4 px-3 whitespace-nowrap">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-base font-mono text-gray-900 dark:text-white">
+                                #{c.billNo}
+                              </span>
+                              <div className="flex items-center gap-1 text-[11px] text-gray-500">
+                                {c.bookNo && <span>Book: {c.bookNo}</span>}
+                                {c.challanNo && <span>Ch: {c.challanNo}</span>}
                               </div>
-                            </Td>
+                            </div>
+                          </Td>
 
-                            {/* Date */}
-                            <Td className="py-4 px-3 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">{formatDate(c.date)}</span>
-                            </Td>
+                          {/* Date */}
+                          <Td className="py-4 px-3 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">
+                            <span className="font-medium">{formatDate(c.date)}</span>
+                          </Td>
 
-                            {/* Firm */}
-                            <Td className="py-4 px-3 whitespace-nowrap">
-                              <span
-                                className={clsx(
-                                  "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold",
-                                  isSwastik
-                                    ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-500/20"
-                                    : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-500/20",
-                                )}
-                              >
-                                {c.firmName}
+                          {/* Firm */}
+                          <Td className="py-4 px-3 whitespace-nowrap">
+                            <span
+                              className={clsx(
+                                "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold",
+                                isSwastik
+                                  ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-500/20"
+                                  : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-500/20",
+                              )}
+                            >
+                              {c.firmName}
+                            </span>
+                          </Td>
+
+                          {/* Merchant */}
+                          <Td className="py-4 px-4 max-w-xs">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-gray-900 dark:text-white truncate">
+                                {c.merchantName}
                               </span>
-                            </Td>
-
-                            {/* Merchant */}
-                            <Td className="py-4 px-4 max-w-xs">
-                              <div className="flex flex-col">
-                                <span className="font-bold text-gray-900 dark:text-white truncate">
-                                  {c.merchantName}
-                                </span>
-                                {c.merchantMobile && (
-                                  <span className="text-[11px] text-gray-500 font-mono">
-                                    Mo: {c.merchantMobile}
-                                  </span>
-                                )}
-                                {c.merchantAddress && (
-                                  <span className="text-[11px] text-gray-400 truncate">
-                                    {c.merchantAddress}
-                                  </span>
-                                )}
-                              </div>
-                            </Td>
-
-                            {/* Items / Qty */}
-                            <Td className="py-4 px-3 text-center whitespace-nowrap">
-                              <span className="font-semibold text-gray-900 dark:text-white">
-                                {c.totalQty}
-                              </span>
-                              <span className="text-[11px] text-gray-400 block">
-                                {Array.isArray(c.items) ? c.items.length : 0} આઇટમ્સ
-                              </span>
-                            </Td>
-
-                            {/* GST */}
-                            <Td className="py-4 px-3 whitespace-nowrap text-xs">
-                              {c.isGstApplicable && Number(c.totalGst) > 0 ? (
-                                <div className="flex flex-col">
-                                  <span className="text-emerald-600 font-semibold font-mono">
-                                    ₹ {formatCurrency(c.totalGst)}
-                                  </span>
-                                  <span className="text-[10px] text-gray-400">
-                                    CGST {c.cgstRate || 2.5}% + SGST {c.sgstRate || 2.5}%
-                                  </span>
-                                </div>
-                              ) : (
-                                <span className="text-gray-400 text-[11px] italic">
-                                  GST લાગુ નથી
+                              {c.merchantMobile && (
+                                <span className="text-[11px] text-gray-500 font-mono">
+                                  Mo: {c.merchantMobile}
                                 </span>
                               )}
-                            </Td>
-
-                            {/* Grand Total */}
-                            <Td className="py-4 px-4 whitespace-nowrap text-right">
-                              <span className="font-bold text-base text-gray-900 dark:text-white font-mono">
-                                ₹ {formatCurrency(c.grandTotal)}
-                              </span>
-                            </Td>
-
-                            {/* Status */}
-                            <Td className="py-4 px-3 text-center whitespace-nowrap">
-                              <select
-                                value={c.status || "Pending"}
-                                onChange={(e) => handleUpdateStatus(c._id, e.target.value)}
-                                className={clsx(
-                                  "text-xs font-semibold rounded-lg px-2 py-1 border-0 cursor-pointer focus:ring-1",
-                                  c.status === "Paid"
-                                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
-                                    : c.status === "Partially Paid"
-                                      ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                                      : c.status === "Cancelled"
-                                        ? "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300"
-                                        : "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300",
-                                )}
-                              >
-                                <option value="Pending">Pending (બાકી)</option>
-                                <option value="Paid">Paid (ચૂકતે)</option>
-                                <option value="Partially Paid">Partially (અંશતઃ)</option>
-                                <option value="Cancelled">Cancelled (રદ)</option>
-                              </select>
-                            </Td>
-
-                            {/* Google Drive Sync Status */}
-                            <Td className="py-4 px-3 text-center whitespace-nowrap">
-                              {c.googleDriveSynced ? (
-                                c.googleDriveFileUrl ? (
-                                  <a
-                                    href={c.googleDriveFileUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-500/20 dark:bg-emerald-950/40 dark:text-emerald-300 transition-colors"
-                                    title="Google Drive માં ફાઈલ જુઓ"
-                                  >
-                                    <CloudArrowUpIcon className="h-3.5 w-3.5 text-emerald-600" />
-                                    <span>ડ્રાઇવમાં સેવ</span>
-                                  </a>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                                    <CheckCircleIcon className="h-3.5 w-3.5" />
-                                    <span>સેવ થયેલ</span>
-                                  </span>
-                                )
-                              ) : (
-                                <Button
-                                  variant="outlined"
-                                  color="neutral"
-                                  className="h-7 text-xs px-2 flex items-center gap-1 font-medium text-gray-600 hover:text-primary-600"
-                                  onClick={() => handleSyncSingleToDrive(c._id)}
-                                  disabled={syncingId === c._id}
-                                  title="Google Drive (swastikelegance065@gmail.com) માં સેવ કરો"
-                                >
-                                  <CloudArrowUpIcon
-                                    className={clsx(
-                                      "h-3.5 w-3.5",
-                                      syncingId === c._id && "animate-bounce text-primary-600",
-                                    )}
-                                  />
-                                  <span>{syncingId === c._id ? "સિંક..." : "ડ્રાઇવ સેવ"}</span>
-                                </Button>
+                              {c.merchantAddress && (
+                                <span className="text-[11px] text-gray-400 truncate">
+                                  {c.merchantAddress}
+                                </span>
                               )}
-                            </Td>
+                            </div>
+                          </Td>
 
-                            {/* Actions */}
-                            <Td className="py-4 px-4 whitespace-nowrap text-right">
-                              <div className="flex items-center justify-end gap-1.5">
-                                {/* Print Button */}
-                                <Button
-                                  variant="soft"
-                                  color="primary"
-                                  className="h-8 text-xs px-2.5 flex items-center gap-1 font-semibold"
-                                  onClick={() => handleOpenPrint(c)}
-                                  title="બિલ પ્રિન્ટ / PDF ડાઉનલોડ"
-                                >
-                                  <PrinterIcon className="h-4 w-4" />
-                                  પ્રિન્ટ
-                                </Button>
+                          {/* Items / Qty */}
+                          <Td className="py-4 px-3 text-center whitespace-nowrap">
+                            <span className="font-semibold text-gray-900 dark:text-white">
+                              {c.totalQty}
+                            </span>
+                            <span className="text-[11px] text-gray-400 block">
+                              {Array.isArray(c.items) ? c.items.length : 0} આઇટમ્સ
+                            </span>
+                          </Td>
 
-                                {/* Edit Button */}
-                                <Button
-                                  variant="flat"
-                                  color="neutral"
-                                  isIcon
-                                  className="h-8 w-8 text-gray-500 hover:text-primary-600"
-                                  onClick={() => handleOpenEdit(c)}
-                                  title="સુધારો (Edit)"
-                                >
-                                  <PencilSquareIcon className="h-4 w-4" />
-                                </Button>
-
-                                {/* Delete Button */}
-                                <Button
-                                  variant="flat"
-                                  color="neutral"
-                                  isIcon
-                                  className="h-8 w-8 text-gray-500 hover:text-error"
-                                  onClick={() => handleOpenDelete(c)}
-                                  title="ડિલીટ કરો (Delete)"
-                                >
-                                  <TrashIcon className="h-4 w-4" />
-                                </Button>
+                          {/* GST */}
+                          <Td className="py-4 px-3 whitespace-nowrap text-xs">
+                            {c.isGstApplicable && Number(c.totalGst) > 0 ? (
+                              <div className="flex flex-col">
+                                <span className="text-emerald-600 font-semibold font-mono">
+                                  ₹ {formatCurrency(c.totalGst)}
+                                </span>
+                                <span className="text-[10px] text-gray-400">
+                                  CGST {c.cgstRate || 2.5}% + SGST {c.sgstRate || 2.5}%
+                                </span>
                               </div>
-                            </Td>
-                          </Tr>
-                        );
-                      })}
-                    </TBody>
-                  </Table>
-                </div>
-              </Card>
-            )}
+                            ) : (
+                              <span className="text-gray-400 text-[11px] italic">
+                                GST લાગુ નથી
+                              </span>
+                            )}
+                          </Td>
+
+                          {/* Grand Total */}
+                          <Td className="py-4 px-4 whitespace-nowrap text-right">
+                            <span className="font-bold text-base text-gray-900 dark:text-white font-mono">
+                              ₹ {formatCurrency(c.grandTotal)}
+                            </span>
+                          </Td>
+
+                          {/* Status */}
+                          <Td className="py-4 px-3 text-center whitespace-nowrap">
+                            <select
+                              value={c.status || "Pending"}
+                              onChange={(e) => handleUpdateStatus(c._id, e.target.value)}
+                              className={clsx(
+                                "text-xs font-semibold rounded-lg px-2 py-1 border-0 cursor-pointer focus:ring-1",
+                                c.status === "Paid"
+                                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                  : c.status === "Partially Paid"
+                                    ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                                    : c.status === "Cancelled"
+                                      ? "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300"
+                                      : "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300",
+                              )}
+                            >
+                              <option value="Pending">Pending (બાકી)</option>
+                              <option value="Paid">Paid (ચૂકતે)</option>
+                              <option value="Partially Paid">Partially (અંશતઃ)</option>
+                              <option value="Cancelled">Cancelled (રદ)</option>
+                            </select>
+                          </Td>
+
+                          {/* Google Drive Sync Status */}
+                          <Td className="py-4 px-3 text-center whitespace-nowrap">
+                            {c.googleDriveSynced ? (
+                              c.googleDriveFileUrl ? (
+                                <a
+                                  href={c.googleDriveFileUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-500/20 dark:bg-emerald-950/40 dark:text-emerald-300 transition-colors"
+                                  title="Google Drive માં ફાઈલ જુઓ"
+                                >
+                                  <CloudArrowUpIcon className="h-3.5 w-3.5 text-emerald-600" />
+                                  <span>ડ્રાઇવમાં સેવ</span>
+                                </a>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                                  <CheckCircleIcon className="h-3.5 w-3.5" />
+                                  <span>સેવ થયેલ</span>
+                                </span>
+                              )
+                            ) : (
+                              <Button
+                                variant="outlined"
+                                color="neutral"
+                                className="h-7 text-xs px-2 flex items-center gap-1 font-medium text-gray-600 hover:text-primary-600"
+                                onClick={() => handleSyncSingleToDrive(c._id)}
+                                disabled={syncingId === c._id}
+                                title="Google Drive (swastikelegance065@gmail.com) માં સેવ કરો"
+                              >
+                                <CloudArrowUpIcon
+                                  className={clsx(
+                                    "h-3.5 w-3.5",
+                                    syncingId === c._id && "animate-bounce text-primary-600",
+                                  )}
+                                />
+                                <span>{syncingId === c._id ? "સિંક..." : "ડ્રાઇવ સેવ"}</span>
+                              </Button>
+                            )}
+                          </Td>
+
+                          {/* Actions */}
+                          <Td className="py-4 px-4 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {/* Print Button */}
+                              <Button
+                                variant="soft"
+                                color="primary"
+                                className="h-8 text-xs px-2.5 flex items-center gap-1 font-semibold"
+                                onClick={() => handleOpenPrint(c)}
+                                title="બિલ પ્રિન્ટ / PDF ડાઉનલોડ"
+                              >
+                                <PrinterIcon className="h-4 w-4" />
+                                પ્રિન્ટ
+                              </Button>
+
+                              {/* Edit Button */}
+                              <Button
+                                variant="flat"
+                                color="neutral"
+                                isIcon
+                                className="h-8 w-8 text-gray-500 hover:text-primary-600"
+                                onClick={() => handleOpenEdit(c)}
+                                title="સુધારો (Edit)"
+                              >
+                                <PencilSquareIcon className="h-4 w-4" />
+                              </Button>
+
+                              {/* Delete Button */}
+                              <Button
+                                variant="flat"
+                                color="neutral"
+                                isIcon
+                                className="h-8 w-8 text-gray-500 hover:text-error"
+                                onClick={() => handleOpenDelete(c)}
+                                title="ડિલીટ કરો (Delete)"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </Td>
+                        </Tr>
+                      );
+                    })}
+                  </TBody>
+                </Table>
+              </div>
+            </Card>
+          )}
         </>
 
         {/* =================================================================== */}
