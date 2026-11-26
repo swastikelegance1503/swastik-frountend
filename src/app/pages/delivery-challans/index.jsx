@@ -677,20 +677,21 @@ export default function DeliveryChallansPage() {
                           {/* Print Button */}
                           <Button
                             variant="soft"
-                            color="error"
-                            className="h-8 px-2 text-xs font-bold"
+                            color="primary"
+                            className="h-8 px-2.5 text-xs font-semibold flex items-center gap-1.5"
                             onClick={() => handleOpenPrint(c)}
                             title="ચલાણ પ્રિન્ટ (Print Slip)"
                           >
-                            <PrinterIcon className="h-4 w-4 mr-1" />
-                            પ્રિન્ટ
+                            <PrinterIcon className="h-4 w-4" />
+                            <span>પ્રિન્ટ</span>
                           </Button>
 
                           {/* Edit */}
                           <Button
-                            variant="text"
+                            variant="flat"
                             color="neutral"
-                            className="h-8 w-8 text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                            isIcon
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/50"
                             onClick={() => handleOpenEdit(c)}
                             title="એડિટ (Edit)"
                           >
@@ -699,9 +700,10 @@ export default function DeliveryChallansPage() {
 
                           {/* Delete */}
                           <Button
-                            variant="text"
+                            variant="flat"
                             color="neutral"
-                            className="h-8 w-8 text-gray-500 hover:text-red-600"
+                            isIcon
+                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
                             onClick={() => handleOpenDelete(c)}
                             title="ડિલીટ (Delete)"
                           >
