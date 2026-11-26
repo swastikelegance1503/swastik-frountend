@@ -347,11 +347,8 @@ export default function DeliveryChallansPage() {
               </span>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
-                  ચલાણ મેનેજમેન્ટ (Delivery Challans)
+                  ચલાણ મેનેજમેન્ટ
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન ડિલિવરી ચલાણ, પ્રિન્ટ અને જથ્થો મેનેજમેન્ટ
-                </p>
               </div>
             </div>
           </div>
@@ -378,14 +375,15 @@ export default function DeliveryChallansPage() {
             </Button>
 
             <Button
-              variant="solid"
-              color="error"
+              variant="filled"
+              color="primary"
               className="h-10 text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-sm"
               onClick={handleOpenCreate}
             >
               <PlusIcon className="h-4 w-4" />
               નવું ચલાણ બનાવો (Create Challan)
             </Button>
+
           </div>
         </div>
 
@@ -1039,7 +1037,7 @@ export default function DeliveryChallansPage() {
                   leave="ease-in duration-200"
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
-                  className="w-full max-w-xl sm:max-w-2xl"
+                  className="w-full max-w-3xl sm:max-w-4xl"
                 >
                   <DialogPanel className="w-full transform rounded-2xl bg-white dark:bg-dark-700 p-4 sm:p-5 text-left align-middle shadow-2xl transition-all border border-gray-200 dark:border-dark-600">
                     <div className="flex items-center justify-between pb-3 border-b border-gray-150 dark:border-dark-600">
@@ -1079,13 +1077,13 @@ export default function DeliveryChallansPage() {
                     </div>
 
                     {/* Clean Iframe Preview - 100% exact print preview without CSS bleed or internal scrollbars */}
-                    <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-200/80 dark:bg-dark-900 p-2 flex justify-center overflow-auto max-h-[75vh]">
+                    <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-200/80 dark:bg-dark-900 p-2 flex justify-center overflow-auto max-h-[78vh]">
                       {activePrintChallan && (
-                        <div className="w-full max-w-[480px] shadow-lg rounded overflow-hidden bg-white border border-gray-300">
+                        <div className="w-full max-w-[760px] shadow-lg rounded overflow-hidden bg-white border border-gray-300">
                           <iframe
                             srcDoc={generateDeliveryChallanPrintHtml(activePrintChallan)}
-                            title="Challan Print Preview (Half A4 / A5)"
-                            className="w-full h-[540px] border-0 block"
+                            title="Challan Print Preview (A4 Portrait - 2 Copies)"
+                            className="w-full h-[76vh] min-h-[660px] border-0 block"
                           />
                         </div>
                       )}
@@ -1093,7 +1091,7 @@ export default function DeliveryChallansPage() {
 
                     <div className="flex items-center justify-between pt-2 border-t border-gray-150 dark:border-dark-600 text-xs text-gray-500">
                       <span className="font-medium text-gray-600 dark:text-gray-300">
-                        📄 હાફ A4 સાઇઝ (A5) / સુરત લાલ ચલાણ સ્લિપ ડિઝાઇન
+                        📄 A4 પોટ્રેટ – ૨ ચલાણ કોપી (Top Half: First Copy | Bottom Half: Second Copy)
                       </span>
                       <div className="flex items-center gap-2">
                         <Button variant="outlined" color="neutral" size="sm" onClick={() => setIsPrintModalOpen(false)}>

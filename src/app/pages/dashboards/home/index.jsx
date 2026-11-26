@@ -1,6 +1,5 @@
 // Import Dependencies
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link } from "react-router";
 import {
   BuildingOffice2Icon,
   PlusIcon,
@@ -90,7 +89,7 @@ export default function FirmProfilesHome() {
   const [deleting, setDeleting] = useState(false);
 
   // Seeding State
-  const [seeding, setSeeding] = useState(false);
+  const [, setSeeding] = useState(false);
 
   // Fetch all profiles from backend API
   const fetchProfiles = useCallback(async (isRefresh = false) => {
@@ -220,9 +219,9 @@ export default function FirmProfilesHome() {
         ownerName: formData.ownerName.trim(),
         mobileNumbers: formData.mobileNumbers
           ? formData.mobileNumbers
-              .split(/[,;\n]/)
-              .map((m) => m.trim())
-              .filter(Boolean)
+            .split(/[,;\n]/)
+            .map((m) => m.trim())
+            .filter(Boolean)
           : [],
         address: formData.address.trim(),
         gstin: formData.gstin.trim().toUpperCase(),
@@ -236,9 +235,9 @@ export default function FirmProfilesHome() {
         },
         termsAndConditions: formData.termsAndConditions
           ? formData.termsAndConditions
-              .split("\n")
-              .map((t) => t.trim())
-              .filter(Boolean)
+            .split("\n")
+            .map((t) => t.trim())
+            .filter(Boolean)
           : [],
         templateType: formData.templateType || "standard",
         isDefault: Boolean(formData.isDefault),
@@ -338,19 +337,13 @@ export default function FirmProfilesHome() {
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
                   ફર્મ પ્રોફાઇલ મેનેજમેન્ટ
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    (Firm Profiles)
-                  </span>
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                  સ્વસ્તિક આર્ટ અને આસ્થા ફેશન સહિતની વ્યવસાયિક પેઢીઓ, બેંક એકાઉન્ટ્સ અને બિલિંગ ટેમ્પલેટ્સ
-                </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Link to="/dashboards/challans">
+            {/* <Link to="/dashboards/challans">
               <Button
                 variant="filled"
                 color="secondary"
@@ -359,7 +352,7 @@ export default function FirmProfilesHome() {
                 <DocumentTextIcon className="h-4 w-4 mr-1.5" />
                 ચલાણ & બિલિંગ (Challans) &rarr;
               </Button>
-            </Link>
+            </Link> */}
 
             <Button
               variant="outlined"
@@ -374,7 +367,7 @@ export default function FirmProfilesHome() {
               રીફ્રેશ
             </Button>
 
-            <Button
+            {/* <Button
               variant="soft"
               color="primary"
               className="h-10 text-xs sm:text-sm"
@@ -384,7 +377,7 @@ export default function FirmProfilesHome() {
             >
               <SparklesIcon className={clsx("h-4 w-4 mr-1.5", seeding && "animate-spin")} />
               ડિફોલ્ટ સીડ (Seed Defaults)
-            </Button>
+            </Button> */}
 
             <Button
               variant="filled"
