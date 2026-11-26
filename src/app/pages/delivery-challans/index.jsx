@@ -1039,7 +1039,7 @@ export default function DeliveryChallansPage() {
                   leave="ease-in duration-200"
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
-                  className="w-full max-w-2xl sm:max-w-3xl"
+                  className="w-full max-w-xl sm:max-w-2xl"
                 >
                   <DialogPanel className="w-full transform rounded-2xl bg-white dark:bg-dark-700 p-4 sm:p-5 text-left align-middle shadow-2xl transition-all border border-gray-200 dark:border-dark-600">
                     <div className="flex items-center justify-between pb-3 border-b border-gray-150 dark:border-dark-600">
@@ -1079,18 +1079,20 @@ export default function DeliveryChallansPage() {
                     </div>
 
                     {/* Clean Iframe Preview - 100% exact print preview without CSS bleed or internal scrollbars */}
-                    <div className="my-3 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 dark:bg-dark-900 p-1 flex justify-center overflow-hidden">
+                    <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 dark:bg-dark-900 p-1 flex justify-center overflow-hidden">
                       {activePrintChallan && (
                         <iframe
                           srcDoc={generateDeliveryChallanPrintHtml(activePrintChallan)}
-                          title="Challan Print Preview"
-                          className="w-full h-[580px] border-0 rounded-lg bg-white shadow-sm"
+                          title="Challan Print Preview (Half A4 / A5)"
+                          className="w-full h-[520px] max-w-[500px] border-0 rounded-lg bg-white shadow-sm"
                         />
                       )}
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-gray-150 dark:border-dark-600 text-xs text-gray-500">
-                      <span>A5 સાઇઝ / સુરત લાલ ચલાણ સ્લિપ ડિઝાઇન</span>
+                      <span className="font-medium text-gray-600 dark:text-gray-300">
+                        📄 હાફ A4 સાઇઝ (A5) / સુરત લાલ ચલાણ સ્લિપ ડિઝાઇન
+                      </span>
                       <div className="flex items-center gap-2">
                         <Button variant="outlined" color="neutral" size="sm" onClick={() => setIsPrintModalOpen(false)}>
                           બંધ કરો

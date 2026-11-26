@@ -791,7 +791,7 @@ export default function ChallansPage() {
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   કુલ બિલો
                 </p>
-                <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+                <h3 className="mt-1 text-xl font-bold text-gray-900 dark:text-white">
                   {stats.totalBills}
                 </h3>
                 <p className="mt-0.5 text-xs text-primary-600 dark:text-primary-400">
@@ -811,7 +811,7 @@ export default function ChallansPage() {
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   કુલ ક્વોન્ટિટી
                 </p>
-                <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+                <h3 className="mt-1 text-xl font-bold text-gray-900 dark:text-white">
                   {stats.totalQty}
                 </h3>
                 <p className="mt-0.5 text-xs text-indigo-600 dark:text-indigo-400">
@@ -829,9 +829,9 @@ export default function ChallansPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  કરપાત્ર રકમ (Taxable)
+                  કરપાત્ર રકમ
                 </p>
-                <h3 className="mt-1 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                <h3 className="mt-1 text-xl sm:text-xl font-bold text-gray-900 dark:text-white truncate">
                   ₹ {formatCurrency(stats.taxableAmount)}
                 </h3>
                 <p className="mt-0.5 text-xs text-purple-600 dark:text-purple-400">
@@ -851,7 +851,7 @@ export default function ChallansPage() {
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   કુલ GST રકમ
                 </p>
-                <h3 className="mt-1 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                <h3 className="mt-1 text-xl sm:text-xl font-bold text-gray-900 dark:text-white truncate">
                   ₹ {formatCurrency(stats.totalGst)}
                 </h3>
                 <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
@@ -869,9 +869,9 @@ export default function ChallansPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
-                  કુલ રકમ (Grand Total)
+                  કુલ રકમ
                 </p>
-                <h3 className="mt-1 text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400 truncate">
+                <h3 className="mt-1 text-xl sm:text-xl font-bold text-emerald-700 dark:text-emerald-400 truncate">
                   ₹ {formatCurrency(stats.grandTotal)}
                 </h3>
                 <p className="mt-0.5 text-xs text-emerald-600 dark:text-emerald-300">
@@ -1927,16 +1927,31 @@ export default function ChallansPage() {
                       </div>
                     </div>
 
-                    {/* Interactive HTML Preview Box */}
+                    {/* Interactive HTML Preview Box - Full A4 Page Iframe */}
                     {activePrintChallan && (
-                      <div className="overflow-y-auto max-h-[72vh] rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 p-2 sm:p-4">
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: generateBillPrintHtml(activePrintChallan),
-                          }}
+                      <div className="my-2 rounded-xl border border-gray-200 dark:border-dark-600 bg-gray-100 dark:bg-dark-900 p-1 flex justify-center overflow-hidden">
+                        <iframe
+                          srcDoc={generateBillPrintHtml(activePrintChallan)}
+                          title="Bill Print Preview (Full A4)"
+                          className="w-full h-[75vh] min-h-[640px] border-0 rounded-lg bg-white shadow-sm"
                         />
                       </div>
                     )}
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-150 dark:border-dark-600 text-xs text-gray-500">
+                      <span className="font-medium text-gray-600 dark:text-gray-300">
+                        📄 ફુલ A4 સાઇઝ / ટેક્સ ઇન્વોઇસ ડિઝાઇન (Full A4 Page)
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outlined" color="neutral" size="sm" onClick={() => setIsPrintModalOpen(false)}>
+                          બંધ કરો
+                        </Button>
+                        <Button variant="filled" color="primary" size="sm" onClick={handlePrintNow}>
+                          <PrinterIcon className="h-3.5 w-3.5 mr-1" />
+                          હમણાં પ્રિન્ટ કરો (Print)
+                        </Button>
+                      </div>
+                    </div>
                   </DialogPanel>
                 </TransitionChild>
               </div>
