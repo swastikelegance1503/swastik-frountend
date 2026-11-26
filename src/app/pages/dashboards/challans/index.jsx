@@ -729,6 +729,21 @@ export default function ChallansPage() {
               </Button>
             </Link> */}
 
+            {/* Google Sheet Direct Link (if synced) */}
+            {challans.some((c) => c.googleDriveSheetUrl) && (
+              <a
+                href={challans.find((c) => c.googleDriveSheetUrl)?.googleDriveSheetUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="h-10 px-3 text-xs sm:text-sm font-semibold rounded-xl bg-red-50 text-red-700 hover:bg-red-100 border border-red-500/30 flex items-center gap-1.5 transition-colors shadow-xs"
+                title="Google Sheet માં અલગ બિલ રેકોર્ડ ખોલો"
+              >
+                <TableCellsIcon className="h-4 w-4 text-red-600" />
+                <span>બિલ શીટ</span>
+                <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 opacity-70" />
+              </a>
+            )}
+
             {/* Google Drive Sync Settings Button */}
             <Button
               variant={driveConfig.isConfigured ? "soft" : "outlined"}
@@ -2106,13 +2121,19 @@ export default function ChallansPage() {
                             <div className="text-base font-bold text-emerald-950 dark:text-white font-mono mt-0.5">
                               {driveConfig.email || "swastikelegance065@gmail.com"}
                             </div>
-                            <div className="mt-1 flex flex-wrap gap-3 text-xs text-emerald-700 dark:text-emerald-300">
-                              <span className="flex items-center gap-1">
+                            <div className="mt-1 flex flex-wrap gap-2 sm:gap-3 text-xs text-emerald-700 dark:text-emerald-300">
+                              <span className="flex items-center gap-1 font-medium">
                                 <FolderIcon className="h-3.5 w-3.5" /> 📁 Swastik Art - Challans & Bills
                               </span>
-                              <span className="flex items-center gap-1">
-                                <TableCellsIcon className="h-3.5 w-3.5" /> 📊 Challans & Bills Master Record
+                              <span className="flex items-center gap-1 font-bold text-red-700 dark:text-red-400">
+                                <TableCellsIcon className="h-3.5 w-3.5" /> 📗 બિલ શીટ: Swastik Art - Bills Record
                               </span>
+                              <span className="flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-400">
+                                <TableCellsIcon className="h-3.5 w-3.5" /> 📘 ચલાણ શીટ: Swastik Art - Delivery Challans Record
+                              </span>
+                            </div>
+                            <div className="mt-2 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-white/70 dark:bg-dark-700/70 rounded-md px-2 py-1 inline-block border border-emerald-500/20">
+                              ✨ બિલ અને ચલાણ બંને હવે આપમેળે <strong>અલગ અલગ Google Sheet</strong> માં સેવ થાય છે!
                             </div>
                           </div>
 

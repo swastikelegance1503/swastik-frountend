@@ -11,7 +11,14 @@ import {
   XMarkIcon,
   BanknotesIcon,
   ArrowPathIcon,
-  DocumentDuplicateIcon
+  DocumentDuplicateIcon,
+  CloudArrowUpIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  ClipboardDocumentIcon,
+  FolderIcon,
+  TableCellsIcon,
+  ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
 import { toast } from "sonner";
@@ -22,6 +29,7 @@ import dayjs from "dayjs";
 import {
   Button,
   Card,
+  Input,
   Table,
   THead,
   TBody,
@@ -36,6 +44,7 @@ import {
   generateDeliveryChallanPrintHtml,
   printDeliveryChallanIframe,
 } from "./deliveryChallanPrintHtml";
+import { GOOGLE_APPS_SCRIPT_CODE } from "./googleDriveScriptCode";
 
 // ----------------------------------------------------------------------
 
@@ -101,6 +110,105 @@ export default function DeliveryChallansPage() {
   const [challanToDelete, setChallanToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Google Drive Settings State (swastikelegance065@gmail.com)
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+  const [driveConfig, setDriveConfig] = useState({
+    email: "swastikelegance065@gmail.com",
+    webhookUrl: "",
+    autoSync: true,
+    isConfigured: false,
+    challansSheetName: "Swastik Art - Delivery Challans Record",
+    billsSheetName: "Swastik Art - Bills Record",
+  });
+  const [savingDriveConfig, setSavingDriveConfig] = useState(false);
+  const [syncingAllDrive, setSyncingAllDrive] = useState(false);
+  const [syncingId, setSyncingId] = useState(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  // Fetch Google Drive Settings
+  const fetchDriveConfig = useCallback(async () => {
+    try {
+      const res = await axios.get("/challans/drive/config");
+      if (res.data?.success && res.data.config) {
+        setDriveConfig(res.data.config);
+      }
+    } catch (e) {
+      console.warn("Drive config fetch warning:", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDriveConfig();
+  }, [fetchDriveConfig]);
+
+  const handleSaveDriveConfig = async (e) => {
+    if (e) e.preventDefault();
+    setSavingDriveConfig(true);
+    try {
+      const res = await axios.post("/challans/drive/config", driveConfig);
+      if (res.data?.success) {
+        toast.success("Google Drive સેટિંગ્સ સફળતાપૂર્વક સેવ થઈ ગઈ!");
+        setDriveConfig(res.data.config);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message);
+    } finally {
+      setSavingDriveConfig(false);
+    }
+  };
+
+  const handleSyncSingleToDrive = async (id) => {
+    setSyncingId(id);
+    try {
+      const res = await axios.post(`/delivery-challans/${id}/sync-drive`);
+      if (res.data?.success) {
+        toast.success(res.data.message || "ચલાણ Google Drive & અલગ ચલાણ શીટમાં સેવ થઈ ગયું!");
+        setChallans((prev) =>
+          prev.map((c) =>
+            c._id === id
+              ? {
+                  ...c,
+                  googleDriveSynced: true,
+                  googleDriveFileUrl: res.data.data?.googleDriveFileUrl || c.googleDriveFileUrl,
+                  googleDriveSheetUrl: res.data.data?.googleDriveSheetUrl || c.googleDriveSheetUrl,
+                }
+              : c
+          )
+        );
+      } else {
+        toast.error(res.data?.error || "Google Drive માં સેવ કરતી વખતે ભૂલ આવી.");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message);
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
+  const handleSyncAllToDrive = async () => {
+    setSyncingAllDrive(true);
+    try {
+      const res = await axios.post("/delivery-challans/drive/sync-all");
+      if (res.data?.success) {
+        toast.success(res.data.message);
+        fetchChallans();
+      } else {
+        toast.error(res.data?.message || "સિંક કરવામાં ભૂલ આવી.");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message);
+    } finally {
+      setSyncingAllDrive(false);
+    }
+  };
+
+  const handleCopyScriptCode = () => {
+    navigator.clipboard.writeText(GOOGLE_APPS_SCRIPT_CODE);
+    setCopiedCode(true);
+    toast.success("Google Apps Script કોડ કોપી થઈ ગયો!");
+    setTimeout(() => setCopiedCode(false), 3000);
+  };
+
   // 1. Fetch Merchants
   const fetchMerchants = useCallback(async () => {
     try {
@@ -116,33 +224,31 @@ export default function DeliveryChallansPage() {
   }, []);
 
   // 2. Fetch Delivery Challans
-  const fetchChallans = useCallback(
-    async (isRefresh = false) => {
-      if (isRefresh) setIsRefreshing(true);
-      else setLoading(true);
+  const fetchChallans = useCallback(() => {
+    setLoading(true);
+    const params = {};
+    if (selectedFirm !== "All") params.firm = selectedFirm;
+    if (statusFilter !== "All") params.status = statusFilter;
+    if (merchantFilter !== "All") params.merchantId = merchantFilter;
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    if (search && search.trim()) params.search = search.trim();
 
-      const params = {};
-      if (selectedFirm !== "All") params.firm = selectedFirm;
-      if (statusFilter !== "All") params.status = statusFilter;
-      if (merchantFilter !== "All") params.merchantId = merchantFilter;
-      if (startDate) params.startDate = startDate;
-      if (endDate) params.endDate = endDate;
-      if (search && search.trim()) params.search = search.trim();
-
-      try {
-        const res = await axios.get("/delivery-challans", { params });
+    return axios
+      .get("/delivery-challans", { params })
+      .then((res) => {
         if (res.data?.success) {
           setChallans(res.data.data || []);
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error("Error fetching delivery challans:", err);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
         setIsRefreshing(false);
-      }
-    },
-    [selectedFirm, statusFilter, merchantFilter, startDate, endDate, search]
-  );
+      });
+  }, [selectedFirm, statusFilter, merchantFilter, startDate, endDate, search]);
 
   useEffect(() => {
     fetchMerchants();
@@ -365,13 +471,44 @@ export default function DeliveryChallansPage() {
               variant="outlined"
               color="neutral"
               className="h-10 text-xs sm:text-sm"
-              onClick={() => fetchChallans(true)}
+              onClick={() => {
+                setIsRefreshing(true);
+                fetchChallans();
+              }}
               disabled={isRefreshing}
             >
               <ArrowPathIcon
                 className={clsx("h-4 w-4 mr-1.5", isRefreshing && "animate-spin")}
               />
               રીફ્રેશ
+            </Button>
+
+            {/* Google Sheet Direct Link (if synced) */}
+            {challans.some((c) => c.googleDriveSheetUrl) && (
+              <a
+                href={challans.find((c) => c.googleDriveSheetUrl)?.googleDriveSheetUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="h-10 px-3 text-xs sm:text-sm font-semibold rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-500/30 flex items-center gap-1.5 transition-colors shadow-xs"
+                title="Google Sheet માં અલગ ચલાણ રેકોર્ડ ખોલો"
+              >
+                <TableCellsIcon className="h-4 w-4 text-blue-600" />
+                <span>ચલાણ શીટ</span>
+                <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 opacity-70" />
+              </a>
+            )}
+
+            {/* Google Drive Settings Button */}
+            <Button
+              type="button"
+              variant={driveConfig.isConfigured ? "soft" : "outlined"}
+              color={driveConfig.isConfigured ? "success" : "warning"}
+              className="h-10 text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs"
+              onClick={() => setIsDriveModalOpen(true)}
+              title="Google Drive ઓટો-સેવ સેટિંગ્સ (અલગ ચલાણ શીટ)"
+            >
+              <CloudArrowUpIcon className="h-4 w-4" />
+              <span>Google Drive</span>
             </Button>
 
             <Button
@@ -621,6 +758,7 @@ export default function DeliveryChallansPage() {
                     <Th className="py-3 px-4 text-center">જથ્થો (Qty)</Th>
                     <Th className="py-3 px-4 text-right">નેટ રકમ (Net)</Th>
                     <Th className="py-3 px-4 text-center">સ્ટેટસ</Th>
+                    <Th className="py-3 px-3 text-center">ડ્રાઇવ સિંક</Th>
                     <Th className="py-3 px-4 text-center">એક્શન</Th>
                   </Tr>
                 </THead>
@@ -672,6 +810,47 @@ export default function DeliveryChallansPage() {
                           {c.status}
                         </span>
                       </Td>
+
+                      {/* Google Drive / Sheet Sync Status */}
+                      <Td className="py-3 px-3 text-center whitespace-nowrap">
+                        {c.googleDriveSynced ? (
+                          c.googleDriveFileUrl ? (
+                            <a
+                              href={c.googleDriveFileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-500/20 dark:bg-emerald-950/40 dark:text-emerald-300 transition-colors"
+                              title="Google Drive માં ચલાણ ફાઇલ જુઓ"
+                            >
+                              <CloudArrowUpIcon className="h-3.5 w-3.5 text-emerald-600" />
+                              <span>ડ્રાઇવમાં સેવ</span>
+                            </a>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                              <CheckCircleIcon className="h-3.5 w-3.5" />
+                              <span>સેવ થયેલ</span>
+                            </span>
+                          )
+                        ) : (
+                          <Button
+                            variant="outlined"
+                            color="neutral"
+                            className="h-7 text-xs px-2 flex items-center gap-1 font-medium text-gray-600 hover:text-red-600"
+                            onClick={() => handleSyncSingleToDrive(c._id)}
+                            disabled={syncingId === c._id}
+                            title="Google Drive (અલગ ચલાણ શીટ) માં સેવ કરો"
+                          >
+                            <CloudArrowUpIcon
+                              className={clsx(
+                                "h-3.5 w-3.5 text-gray-500",
+                                syncingId === c._id && "animate-bounce text-red-500",
+                              )}
+                            />
+                            <span>{syncingId === c._id ? "સેવ..." : "સેવ કરો"}</span>
+                          </Button>
+                        )}
+                      </Td>
+
                       <Td className="py-3 px-4 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1">
                           {/* Print Button */}
@@ -1168,6 +1347,276 @@ export default function DeliveryChallansPage() {
                       <Button variant="solid" color="error" onClick={handleConfirmDelete} disabled={deleting}>
                         {deleting ? "ડિલીટ થઈ રહ્યું છે..." : "હા, ડિલીટ કરો"}
                       </Button>
+                    </div>
+                  </DialogPanel>
+                </TransitionChild>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
+
+        {/* =================================================================== */}
+        {/* GOOGLE DRIVE & SEPARATE CHALLANS SHEET SYNC MODAL */}
+        {/* =================================================================== */}
+        <Transition appear show={isDriveModalOpen} as="div">
+          <Dialog
+            as="div"
+            className="relative z-50"
+            onClose={() => setIsDriveModalOpen(false)}
+          >
+            <TransitionChild
+              as="div"
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" />
+            </TransitionChild>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <TransitionChild
+                  as="div"
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                  className="w-full max-w-2xl"
+                >
+                  <DialogPanel className="w-full transform rounded-2xl bg-white dark:bg-dark-700 p-6 text-left align-middle shadow-2xl transition-all border border-gray-150 dark:border-dark-600">
+                    <div className="flex items-center justify-between border-b border-gray-150 pb-4 dark:border-dark-600">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-dark-600 text-blue-600">
+                          <CloudArrowUpIcon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                            Google Drive & અલગ ચલાણ શીટ ઓટો-સિંક
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            ડિલિવરી ચલાણ માટેની સમર્પિત Google Sheet (Swastik Art - Delivery Challans Record)
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsDriveModalOpen(false)}
+                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-dark-600"
+                      >
+                        <XMarkIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    <div className="py-4 space-y-4">
+                      {/* Status Card */}
+                      <div className="rounded-xl p-4 bg-blue-50/70 dark:bg-blue-950/20 border border-blue-500/30">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="text-xs font-semibold uppercase text-blue-800 dark:text-blue-300">
+                              લક્ષ્ય Google એકાઉન્ટ (Target Account)
+                            </div>
+                            <div className="text-base font-bold text-blue-950 dark:text-white font-mono mt-0.5">
+                              {driveConfig.email || "swastikelegance065@gmail.com"}
+                            </div>
+                            <div className="mt-1 flex flex-wrap gap-2 sm:gap-3 text-xs text-blue-700 dark:text-blue-300">
+                              <span className="flex items-center gap-1 font-medium">
+                                <FolderIcon className="h-3.5 w-3.5" /> 📁 Swastik Art - Challans & Bills
+                              </span>
+                              <span className="flex items-center gap-1 font-bold text-blue-700 dark:text-blue-300">
+                                <TableCellsIcon className="h-3.5 w-3.5" /> 📘 ચલાણ શીટ: Swastik Art - Delivery Challans Record
+                              </span>
+                              <span className="flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
+                                <TableCellsIcon className="h-3.5 w-3.5" /> 📗 બિલ શીટ: Swastik Art - Bills Record
+                              </span>
+                            </div>
+                            <div className="mt-2 text-[11px] font-semibold text-blue-800 dark:text-blue-200 bg-white/70 dark:bg-dark-700/70 rounded-md px-2 py-1 inline-block border border-blue-500/20">
+                              ✨ ચલાણ અને બિલ બંને હવે આપમેળે <strong>અલગ અલગ Google Sheet</strong> માં સેવ થાય છે!
+                            </div>
+                          </div>
+
+                          <div>
+                            {driveConfig.isConfigured ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                કનેક્ટેડ (Active)
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                                સેટઅપ બાકી
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Direct Sheet Open Link if synced */}
+                      {challans.some((c) => c.googleDriveSheetUrl) && (
+                        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-500/20 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <TableCellsIcon className="h-5 w-5 text-emerald-600" />
+                            <div>
+                              <div className="text-xs font-bold text-gray-900 dark:text-white">
+                                Google Sheet માં ચલાણ લાઈવ જુઓ
+                              </div>
+                              <div className="text-[11px] text-gray-500">
+                                Swastik Art - Delivery Challans Record સ્પ્રેડશીટ ઓનલાઇન ખોલો
+                              </div>
+                            </div>
+                          </div>
+                          <a
+                            href={challans.find((c) => c.googleDriveSheetUrl)?.googleDriveSheetUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs"
+                          >
+                            <span>શીટ ખોલો</span>
+                            <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Webhook Configuration Form */}
+                      <form onSubmit={handleSaveDriveConfig} className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            Google Apps Script Webhook URL *
+                          </label>
+                          <Input
+                            placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+                            value={driveConfig.webhookUrl}
+                            onChange={(e) =>
+                              setDriveConfig({ ...driveConfig, webhookUrl: e.target.value })
+                            }
+                            className="font-mono text-xs"
+                            required
+                          />
+                          <p className="mt-1 text-[11px] text-gray-400">
+                            તમારા swastikelegance065@gmail.com Google Apps Script માંથી Web app URL કોપી કરી અહીં પેસ્ટ કરો.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(driveConfig.autoSync)}
+                              onChange={(e) =>
+                                setDriveConfig({ ...driveConfig, autoSync: e.target.checked })
+                              }
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                            />
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                              નવું ચલાણ બનતા જ આપમેળે Drive અને અલગ ચલાણ શીટમાં સેવ કરો (Auto-Sync)
+                            </span>
+                          </label>
+
+                          <Button
+                            type="submit"
+                            variant="filled"
+                            color="primary"
+                            className="h-9 text-xs px-4 font-semibold"
+                            disabled={savingDriveConfig}
+                          >
+                            {savingDriveConfig && <Spinner className="h-3.5 w-3.5 mr-1" />}
+                            સેટિંગ્સ સેવ કરો
+                          </Button>
+                        </div>
+                      </form>
+
+                      {/* Batch Sync Action */}
+                      <div className="border-t border-gray-150 pt-4 dark:border-dark-600 flex items-center justify-between">
+                        <div>
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                            બધા જૂના ચલાણ ડ્રાઇવમાં સિંક કરો
+                          </h4>
+                          <p className="text-[11px] text-gray-500">
+                            સિસ્ટમના તમામ {challans.length} ચલાણને Google Drive અને અલગ ચલાણ શીટમાં અપલોડ કરો
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="soft"
+                          color="success"
+                          className="h-9 text-xs px-3 font-semibold flex items-center gap-1.5"
+                          onClick={handleSyncAllToDrive}
+                          disabled={syncingAllDrive || !driveConfig.isConfigured}
+                        >
+                          {syncingAllDrive ? (
+                            <>
+                              <Spinner className="h-3.5 w-3.5" />
+                              <span>સિંક થઈ રહ્યું છે...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CloudArrowUpIcon className="h-4 w-4" />
+                              <span>બધા ચલાણ સિંક કરો</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      {/* Setup Instructions Card with Copy Code Button */}
+                      <div className="border-t border-gray-150 pt-4 dark:border-dark-600">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                            📖 30 સેકન્ડ ગાઈડ: swastikelegance065@gmail.com માં કેવી રીતે સેટઅપ કરવું?
+                          </h4>
+                          <Button
+                            type="button"
+                            variant="soft"
+                            color="primary"
+                            className="h-7 text-xs px-2.5 font-semibold flex items-center gap-1"
+                            onClick={handleCopyScriptCode}
+                          >
+                            {copiedCode ? (
+                              <>
+                                <CheckIcon className="h-3.5 w-3.5 text-emerald-600" />
+                                <span>કોપી થઈ ગયું!</span>
+                              </>
+                            ) : (
+                              <>
+                                <ClipboardDocumentIcon className="h-3.5 w-3.5" />
+                                <span>કોડ કોપી કરો (Copy Script)</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        <div className="bg-gray-50 dark:bg-dark-800 rounded-xl p-3.5 text-xs text-gray-600 dark:text-gray-300 space-y-1.5">
+                          <p>
+                            <strong>૧.</strong> બ્રાઉઝરમાં{" "}
+                            <a
+                              href="https://script.google.com/home"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary-600 underline font-semibold"
+                            >
+                              script.google.com
+                            </a>{" "}
+                            ખોલો (swastikelegance065@gmail.com વડે લોગિન કરો).
+                          </p>
+                          <p>
+                            <strong>૨.</strong> <strong>&quot;+ New project&quot;</strong> બનાવી ઉપરનો કોડ કોપી કરી પેસ્ટ કરો.
+                          </p>
+                          <p>
+                            <strong>૩.</strong> ઉપર <strong>testAuth</strong> પસંદ કરી <strong>Run (▶️)</strong> દબાવી એક વાર મંજૂરી (Allow) આપો.
+                          </p>
+                          <p>
+                            <strong>૪.</strong> ઉપર <strong>Deploy &gt; New deployment</strong> પસંદ કરો.
+                          </p>
+                          <p>
+                            <strong>૫.</strong> ⚙️ માં <strong>&quot;Web app&quot;</strong> પસંદ કરી <strong>&quot;Who has access&quot;</strong> માં <strong>&quot;Anyone&quot;</strong> પસંદ કરો અને Deploy કરો.
+                          </p>
+                          <p>
+                            <strong>૬.</strong> મળેલી <strong>Web app URL</strong> કોપી કરી અહીં ઉપર પેસ્ટ કરીને સેવ કરો.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </DialogPanel>
                 </TransitionChild>
