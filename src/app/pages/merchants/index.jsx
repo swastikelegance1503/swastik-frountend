@@ -51,6 +51,7 @@ export default function MerchantsPage() {
     name: "",
     mobileNumber: "",
     address: "",
+    gstin: "",
   });
   const [formErrors, setFormErrors] = useState({});
 
@@ -94,7 +95,7 @@ export default function MerchantsPage() {
   const handleOpenCreate = () => {
     setIsEditing(false);
     setCurrentId(null);
-    setFormData({ name: "", mobileNumber: "", address: "" });
+    setFormData({ name: "", mobileNumber: "", address: "", gstin: "" });
     setFormErrors({});
     setIsOpenModal(true);
   };
@@ -107,6 +108,7 @@ export default function MerchantsPage() {
       name: merchant.name || "",
       mobileNumber: merchant.mobileNumber || "",
       address: merchant.address || "",
+      gstin: merchant.gstin || "",
     });
     setFormErrors({});
     setIsOpenModal(true);
@@ -397,9 +399,15 @@ export default function MerchantsPage() {
                             <p className="font-semibold text-gray-800 dark:text-dark-50">
                               {merchant.name}
                             </p>
-                            <p className="text-[11px] text-gray-400 dark:text-dark-300">
-                              ID: {merchant._id.slice(-6)}
-                            </p>
+                            {merchant.gstin ? (
+                              <p className="text-[11px] font-medium text-primary-600 dark:text-primary-400">
+                                GSTIN: {merchant.gstin}
+                              </p>
+                            ) : (
+                              <p className="text-[11px] text-gray-400 dark:text-dark-300">
+                                ID: {merchant._id.slice(-6)}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </Td>
@@ -533,6 +541,22 @@ export default function MerchantsPage() {
                           setFormData({ ...formData, address: e.target.value })
                         }
                         error={formErrors.address}
+                      />
+                    </div>
+
+                    {/* GSTIN */}
+                    <div>
+                      <Input
+                        label="જીએસટી નંબર (GSTIN Number)"
+                        placeholder="દા.ત. 24AAAAA0000A1Z5 (ઓપ્શનલ)"
+                        maxLength={15}
+                        value={formData.gstin}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            gstin: e.target.value.toUpperCase(),
+                          })
+                        }
                       />
                     </div>
 
