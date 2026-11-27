@@ -10,10 +10,11 @@ import {
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import { TbCoins, TbUser } from "react-icons/tb";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
+import { useAuthContext } from "app/contexts/auth/context";
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,19 @@ const links = [
 ];
 
 export function Profile() {
+  const { user, logout } = useAuthContext();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login", { replace: true });
+    } catch (e) {
+      console.error("Logout error:", e);
+      window.location.href = "/login";
+    }
+  };
+
   return (
     <Popover className="relative flex">
       <PopoverButton
@@ -80,14 +94,14 @@ export function Profile() {
                 <Avatar size={14} src="/images/avatar/avatar-12.jpg" />
                 <div>
                   <Link
-                    className="hover:text-primary-600 focus:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400 dark:focus:text-primary-400 text-base font-medium text-gray-700"
+                    className="hover:text-primary-600 focus:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400 dark:focus:text-primary-400 text-base font-medium text-gray-700 capitalize"
                     to="/settings/general"
                   >
-                    Travis Fuller
+                    {user?.name || user?.username || "Admin"}
                   </Link>
 
-                  <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
-                    Product Designer
+                  <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400 capitalize">
+                    {user?.role || "Administrator"}
                   </p>
                 </div>
               </div>
@@ -117,7 +131,14 @@ export function Profile() {
                   </Link>
                 ))}
                 <div className="px-4 pt-4">
-                  <Button className="w-full gap-2">
+                  <Button
+                    onClick={() => {
+                      close();
+                      handleLogout();
+                    }}
+                    className="w-full gap-2 cursor-pointer"
+                    color="primary"
+                  >
                     <ArrowLeftStartOnRectangleIcon className="size-4.5" />
                     <span>Logout</span>
                   </Button>
