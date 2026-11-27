@@ -112,6 +112,7 @@ export default function ChallansPage() {
   const [selectedFirm, setSelectedFirm] = useState("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [merchantFilter, setMerchantFilter] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -165,6 +166,7 @@ export default function ChallansPage() {
     const params = {};
     if (selectedFirm !== "All") params.firm = selectedFirm;
     if (statusFilter !== "All") params.status = statusFilter;
+    if (merchantFilter !== "All") params.merchantId = merchantFilter;
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
     if (search.trim()) params.search = search.trim();
@@ -184,7 +186,7 @@ export default function ChallansPage() {
         setLoading(false);
         setIsRefreshing(false);
       });
-  }, [selectedFirm, statusFilter, startDate, endDate, search]);
+  }, [selectedFirm, statusFilter, merchantFilter, startDate, endDate, search]);
 
   // 3. Fetch Supporting Metadata (Profiles & Merchants)
   const fetchMeta = useCallback(async () => {
@@ -237,7 +239,7 @@ export default function ChallansPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedFirm, statusFilter, startDate, endDate, search]);
+  }, [selectedFirm, statusFilter, merchantFilter, startDate, endDate, search]);
 
   const totalPages = Math.ceil(challans.length / pageSize) || 1;
   const activePage = Math.min(Math.max(1, currentPage), totalPages);
@@ -993,6 +995,20 @@ export default function ChallansPage() {
               <option value="Paid">Paid (ચૂકતે)</option>
               <option value="Partially Paid">Partially Paid</option>
               <option value="Cancelled">Cancelled</option>
+            </select>
+
+            {/* Merchant Filter */}
+            <select
+              value={merchantFilter}
+              onChange={(e) => setMerchantFilter(e.target.value)}
+              className="h-9 text-xs rounded-xl border border-gray-200 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-200 px-2.5 focus:outline-none max-w-[160px]"
+            >
+              <option value="All">તમામ વેપારી (All Merchants)</option>
+              {merchants.map((m) => (
+                <option key={m._id} value={m._id}>
+                  {m.name}
+                </option>
+              ))}
             </select>
 
             {/* Search */}
