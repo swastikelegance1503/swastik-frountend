@@ -168,11 +168,11 @@ export default function DeliveryChallansPage() {
           prev.map((c) =>
             c._id === id
               ? {
-                  ...c,
-                  googleDriveSynced: true,
-                  googleDriveFileUrl: res.data.data?.googleDriveFileUrl || c.googleDriveFileUrl,
-                  googleDriveSheetUrl: res.data.data?.googleDriveSheetUrl || c.googleDriveSheetUrl,
-                }
+                ...c,
+                googleDriveSynced: true,
+                googleDriveFileUrl: res.data.data?.googleDriveFileUrl || c.googleDriveFileUrl,
+                googleDriveSheetUrl: res.data.data?.googleDriveSheetUrl || c.googleDriveSheetUrl,
+              }
               : c
           )
         );
@@ -268,6 +268,34 @@ export default function DeliveryChallansPage() {
     return { totalCount, totalQty, netAmount, pendingBill };
   }, [challans]);
 
+  // Helper to compute next challan and party challan numbers automatically
+  const getNextDeliveryNumbers = useCallback((firmName, allChallans) => {
+    const targetList = (allChallans || []).filter(
+      (c) => !firmName || (c.firmName && c.firmName.toLowerCase() === firmName.toLowerCase())
+    );
+    const sourceList = targetList.length > 0 ? targetList : (allChallans || []);
+
+    let maxChallan = 0;
+    let maxPChallan = 0;
+
+    for (const c of sourceList) {
+      const ch = parseInt(c.challanNo, 10);
+      if (!isNaN(ch) && ch > maxChallan) maxChallan = ch;
+
+      const pVal = c.pChallanNo || c.challanNo;
+      if (pVal) {
+        const cleanP = String(pVal).replace(/\D/g, "");
+        const p = parseInt(cleanP, 10);
+        if (!isNaN(p) && p > maxPChallan) maxPChallan = p;
+      }
+    }
+
+    const nextChallanNo = maxChallan > 0 ? String(maxChallan + 1) : "1";
+    const nextPChallanNo = maxPChallan > 0 ? String(maxPChallan + 1) : nextChallanNo;
+
+    return { nextChallanNo, nextPChallanNo };
+  }, []);
+
   // Auto Next Challan No & P.Challan No
   const fetchNextChallanNo = async (firm, forcePChallan = false) => {
     try {
@@ -278,7 +306,7 @@ export default function DeliveryChallansPage() {
           challanNo: res.data.nextChallanNo || prev.challanNo,
           pChallanNo:
             forcePChallan || !prev.pChallanNo
-              ? res.data.nextPChallanNo || res.data.nextChallanNo || ""
+              ? res.data.nextPChallanNo || res.data.nextChallanNo || prev.pChallanNo
               : prev.pChallanNo,
         }));
       }
@@ -292,12 +320,15 @@ export default function DeliveryChallansPage() {
     setIsEditing(false);
     setEditingId(null);
     const defaultFirm = selectedFirm !== "All" ? selectedFirm : "Swastik Art";
+    const { nextChallanNo, nextPChallanNo } = getNextDeliveryNumbers(defaultFirm, challans);
     setFormData({
       ...INITIAL_FORM,
       firmName: defaultFirm,
+      challanNo: nextChallanNo,
+      pChallanNo: nextPChallanNo,
       date: dayjs().format("YYYY-MM-DD"),
     });
-    fetchNextChallanNo(defaultFirm);
+    fetchNextChallanNo(defaultFirm, true);
     setIsModalOpen(true);
   };
 
@@ -308,7 +339,7 @@ export default function DeliveryChallansPage() {
     setFormData({
       firmName: c.firmName || "Swastik Art",
       challanNo: c.challanNo || "",
-      pChallanNo: c.pChallanNo || "",
+      pChallanNo: (c.pChallanNo && String(c.pChallanNo).trim()) || c.challanNo || "1",
       date: c.date ? dayjs(c.date).format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD"),
       merchantId: c.merchant || "",
       merchantName: c.merchantName || "",
@@ -397,11 +428,21 @@ export default function DeliveryChallansPage() {
 
     setSubmitting(true);
     try {
+      const finalPChallan =
+        formData.pChallanNo && String(formData.pChallanNo).trim()
+          ? String(formData.pChallanNo).trim()
+          : String(formData.challanNo || "1").trim();
+
+      const submissionData = {
+        ...formData,
+        pChallanNo: finalPChallan,
+      };
+
       if (isEditing) {
-        await axios.put(`/delivery-challans/${editingId}`, formData);
+        await axios.put(`/delivery-challans/${editingId}`, submissionData);
         toast.success(`ચલાણ #${formData.challanNo} સફળતાપૂર્વક અપડેટ થયું!`);
       } else {
-        await axios.post("/delivery-challans", formData);
+        await axios.post("/delivery-challans", submissionData);
         toast.success(`ચલાણ #${formData.challanNo} સફળતાપૂર્વક બની ગયું!`);
       }
       setIsModalOpen(false);
@@ -758,13 +799,13 @@ export default function DeliveryChallansPage() {
                 <THead className="bg-gray-50 dark:bg-dark-800 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <Tr>
                     <Th className="py-3 px-3 w-12 text-center">#</Th>
-                    <Th className="py-3 px-4">ચલાણ નં (Ch.No)</Th>
+                    <Th className="py-3 px-4">ચલાણ નં</Th>
                     <Th className="py-3 px-4">તારીખ</Th>
-                    <Th className="py-3 px-4">પેઢી (Firm)</Th>
-                    <Th className="py-3 px-4">વેપારી (M/s Party)</Th>
+                    <Th className="py-3 px-4">પેઢી</Th>
+                    <Th className="py-3 px-4">વેપારી</Th>
                     <Th className="py-3 px-4 text-center">P.Ch.No.</Th>
-                    <Th className="py-3 px-4 text-center">જથ્થો (Qty)</Th>
-                    <Th className="py-3 px-4 text-right">નેટ રકમ (Net)</Th>
+                    <Th className="py-3 px-4 text-center">જથ્થો</Th>
+                    <Th className="py-3 px-4 text-right">નેટ રકમ</Th>
                     <Th className="py-3 px-4 text-center">સ્ટેટસ</Th>
                     <Th className="py-3 px-3 text-center">ડ્રાઇવ સિંક</Th>
                     <Th className="py-3 px-4 text-center">એક્શન</Th>
@@ -977,8 +1018,18 @@ export default function DeliveryChallansPage() {
                             value={formData.firmName}
                             onChange={(e) => {
                               const firm = e.target.value;
-                              setFormData({ ...formData, firmName: firm });
-                              if (!isEditing) fetchNextChallanNo(firm, true);
+                              if (!isEditing) {
+                                const { nextChallanNo, nextPChallanNo } = getNextDeliveryNumbers(firm, challans);
+                                setFormData({
+                                  ...formData,
+                                  firmName: firm,
+                                  challanNo: nextChallanNo,
+                                  pChallanNo: nextPChallanNo,
+                                });
+                                fetchNextChallanNo(firm, true);
+                              } else {
+                                setFormData({ ...formData, firmName: firm });
+                              }
                             }}
                             className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
                           >
