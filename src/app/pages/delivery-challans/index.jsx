@@ -72,7 +72,6 @@ const INITIAL_FORM = {
   merchantAddress: "",
   merchantCity: "Surat",
   merchantMobile: "",
-  merchantGstin: "",
   items: [
     {
       srNo: 1,
@@ -367,7 +366,6 @@ export default function DeliveryChallansPage() {
       merchantAddress: c.merchantAddress || "",
       merchantCity: c.merchantCity || "Surat",
       merchantMobile: c.merchantMobile || "",
-      merchantGstin: c.merchantGstin || "",
       items: c.items && c.items.length > 0 ? c.items : [INITIAL_ITEM],
       status: c.status || "Delivered",
       notes: c.notes || "",
@@ -386,7 +384,6 @@ export default function DeliveryChallansPage() {
         merchantAddress: found.address || "",
         merchantCity: found.city || "Surat",
         merchantMobile: found.mobileNumber || found.mobile || "",
-        merchantGstin: found.gstin || found.merchantGstin || "",
       }));
     } else {
       setFormData((prev) => ({ ...prev, merchantId: mId }));
@@ -1190,15 +1187,15 @@ export default function DeliveryChallansPage() {
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                            શહેર, મોબાઈલ & GSTIN
+                            શહેર (City) & મોબાઈલ
                           </label>
-                          <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+                          <div className="space-y-1.5">
                             <input
                               type="text"
                               value={formData.merchantCity}
                               onChange={(e) => setFormData({ ...formData, merchantCity: e.target.value })}
                               className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
-                              placeholder="શહેર (City e.g. Surat)"
+                              placeholder="Surat"
                             />
                             <input
                               type="text"
@@ -1208,13 +1205,6 @@ export default function DeliveryChallansPage() {
                               placeholder="મોબાઈલ નંબર (Mobile No)"
                             />
                           </div>
-                          <input
-                            type="text"
-                            value={formData.merchantGstin}
-                            onChange={(e) => setFormData({ ...formData, merchantGstin: e.target.value.toUpperCase() })}
-                            className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
-                            placeholder="GSTIN (દા.ત. 24AAAAA0000A1Z5 - ઓપ્શનલ)"
-                          />
                         </div>
                       </div>
 
