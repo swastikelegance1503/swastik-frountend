@@ -2058,7 +2058,11 @@ export default function ChallansPage() {
 
                         {activePrintChallan?._id && (
                           <a
-                            href={`${JWT_HOST_API}/challans/${activePrintChallan._id}/print`}
+                            href={`${JWT_HOST_API}/challans/${activePrintChallan._id}/print${
+                              window.localStorage.getItem("authToken")
+                                ? `?token=${encodeURIComponent(window.localStorage.getItem("authToken"))}`
+                                : ""
+                            }`}
                             target="_blank"
                             rel="noreferrer"
                           >

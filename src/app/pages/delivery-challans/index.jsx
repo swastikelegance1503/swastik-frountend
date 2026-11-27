@@ -1390,6 +1390,22 @@ export default function DeliveryChallansPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {activePrintChallan?._id && (
+                          <a
+                            href={`${JWT_HOST_API}/delivery-challans/${activePrintChallan._id}/print${
+                              window.localStorage.getItem("authToken")
+                                ? `?token=${encodeURIComponent(window.localStorage.getItem("authToken"))}`
+                                : ""
+                            }`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Button variant="outlined" color="neutral" size="sm" className="h-8 text-xs px-2.5">
+                              <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 mr-1" />
+                              નવા ટેબમાં ખોલો
+                            </Button>
+                          </a>
+                        )}
                         <Button
                           variant="filled"
                           color="primary"
