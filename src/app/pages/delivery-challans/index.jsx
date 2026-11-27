@@ -7,6 +7,7 @@ import {
   TrashIcon,
   MagnifyingGlassIcon,
   PrinterIcon,
+  EyeIcon,
   BuildingOffice2Icon,
   XMarkIcon,
   BanknotesIcon,
@@ -267,12 +268,19 @@ export default function DeliveryChallansPage() {
     return { totalCount, totalQty, netAmount, pendingBill };
   }, [challans]);
 
-  // Auto Next Challan No
-  const fetchNextChallanNo = async (firm) => {
+  // Auto Next Challan No & P.Challan No
+  const fetchNextChallanNo = async (firm, forcePChallan = false) => {
     try {
       const res = await axios.get("/delivery-challans/next-no", { params: { firm } });
-      if (res.data?.success && res.data.nextChallanNo) {
-        setFormData((prev) => ({ ...prev, challanNo: res.data.nextChallanNo }));
+      if (res.data?.success) {
+        setFormData((prev) => ({
+          ...prev,
+          challanNo: res.data.nextChallanNo || prev.challanNo,
+          pChallanNo:
+            forcePChallan || !prev.pChallanNo
+              ? res.data.nextPChallanNo || res.data.nextChallanNo || ""
+              : prev.pChallanNo,
+        }));
       }
     } catch (e) {
       console.warn("Could not fetch next challan no:", e);
@@ -852,7 +860,19 @@ export default function DeliveryChallansPage() {
                       </Td>
 
                       <Td className="py-3 px-4 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1">
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* View Challan Button */}
+                          <Button
+                            variant="soft"
+                            color="info"
+                            className="h-8 px-2.5 text-xs font-semibold flex items-center gap-1.5"
+                            onClick={() => handleOpenPrint(c)}
+                            title="ચલાણ જુઓ (View Challan)"
+                          >
+                            <EyeIcon className="h-4 w-4" />
+                            <span>જુઓ</span>
+                          </Button>
+
                           {/* Print Button */}
                           <Button
                             variant="soft"
@@ -958,7 +978,7 @@ export default function DeliveryChallansPage() {
                             onChange={(e) => {
                               const firm = e.target.value;
                               setFormData({ ...formData, firmName: firm });
-                              if (!isEditing) fetchNextChallanNo(firm);
+                              if (!isEditing) fetchNextChallanNo(firm, true);
                             }}
                             className="w-full h-9 text-xs rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white px-3 focus:outline-none"
                           >

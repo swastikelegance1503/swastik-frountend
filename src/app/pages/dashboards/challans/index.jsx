@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
   PrinterIcon,
+  EyeIcon,
   BuildingOffice2Icon,
   CheckCircleIcon,
   XMarkIcon,
@@ -955,7 +956,7 @@ export default function ChallansPage() {
         {/* =================================================================== */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4">
           {/* List Title Badge */}
-          <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-dark-600 px-3.5 py-2 text-xs font-semibold text-gray-900 dark:white self-start">
+          <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-dark-600 px-3.5 py-2 text-xs font-semibold text-white dark:white self-start">
             <DocumentTextIcon className="h-4 w-4 text-primary-500" />
             <span>બિલ લિસ્ટ ({challans.length})</span>
           </div>
@@ -1241,6 +1242,18 @@ export default function ChallansPage() {
                           {/* Actions */}
                           <Td className="py-4 px-4 whitespace-nowrap text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              {/* View Bill Button */}
+                              <Button
+                                variant="soft"
+                                color="info"
+                                className="h-8 text-xs px-2.5 flex items-center gap-1 font-semibold"
+                                onClick={() => handleOpenPrint(c)}
+                                title="બિલ જુઓ (View Bill)"
+                              >
+                                <EyeIcon className="h-4 w-4" />
+                                <span>જુઓ</span>
+                              </Button>
+
                               {/* Print Button */}
                               <Button
                                 variant="soft"
@@ -1250,7 +1263,7 @@ export default function ChallansPage() {
                                 title="બિલ પ્રિન્ટ / PDF ડાઉનલોડ"
                               >
                                 <PrinterIcon className="h-4 w-4" />
-                                પ્રિન્ટ
+                                <span>પ્રિન્ટ</span>
                               </Button>
 
                               {/* Edit Button */}
