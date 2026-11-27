@@ -807,7 +807,7 @@ export default function DeliveryChallansPage() {
             <p className="mt-1 text-xs text-gray-500">
               નવું ચલાણ બનાવવા માટે ઉપર આપેલ બટન પર ક્લિક કરો.
             </p>
-            <Button variant="solid" color="error" className="mt-4 text-xs" onClick={handleOpenCreate}>
+            <Button variant="filled" color="primary" className="mt-4 text-xs font-semibold" onClick={handleOpenCreate}>
               + નવું ચલાણ બનાવો
             </Button>
           </div>
@@ -1314,7 +1314,13 @@ export default function DeliveryChallansPage() {
                         >
                           રદ કરો (Cancel)
                         </Button>
-                        <Button type="submit" variant="solid" color="error" disabled={submitting}>
+                        <Button
+                          type="submit"
+                          variant="filled"
+                          color="primary"
+                          disabled={submitting}
+                          className="font-medium px-4 shadow-sm"
+                        >
                           {submitting ? "સેવ થઈ રહ્યું છે..." : isEditing ? "અપડેટ કરો" : "સેવ કરો (Save Challan)"}
                         </Button>
                       </div>
@@ -1373,8 +1379,8 @@ export default function DeliveryChallansPage() {
 
                       <div className="flex items-center gap-2">
                         <Button
-                          variant="solid"
-                          color="error"
+                          variant="filled"
+                          color="primary"
                           size="sm"
                           className="h-8 text-xs font-semibold px-3"
                           onClick={handlePrintNow}
@@ -1413,7 +1419,7 @@ export default function DeliveryChallansPage() {
                         <Button variant="outlined" color="neutral" size="sm" onClick={() => setIsPrintModalOpen(false)}>
                           બંધ કરો
                         </Button>
-                        <Button variant="solid" color="error" size="sm" onClick={handlePrintNow}>
+                        <Button variant="filled" color="primary" size="sm" onClick={handlePrintNow}>
                           <PrinterIcon className="h-3.5 w-3.5 mr-1" />
                           હમણાં પ્રિન્ટ કરો (Print)
                         </Button>
@@ -1479,7 +1485,7 @@ export default function DeliveryChallansPage() {
                       >
                         ના, રહેવા દો
                       </Button>
-                      <Button variant="solid" color="error" onClick={handleConfirmDelete} disabled={deleting}>
+                      <Button variant="filled" color="error" onClick={handleConfirmDelete} disabled={deleting}>
                         {deleting ? "ડિલીટ થઈ રહ્યું છે..." : "હા, ડિલીટ કરો"}
                       </Button>
                     </div>

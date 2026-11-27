@@ -55,7 +55,7 @@ export function Profile() {
       navigate("/login", { replace: true });
     } catch (e) {
       console.error("Logout error:", e);
-      window.location.href = "/login";
+      navigate("/login", { replace: true });
     }
   };
 
