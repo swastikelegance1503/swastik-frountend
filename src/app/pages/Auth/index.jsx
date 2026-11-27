@@ -1,6 +1,12 @@
 // Import Dependencies
+import { useState } from "react";
 import { Link } from "react-router";
-import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import {
+  EnvelopeIcon,
+  LockClosedIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 
@@ -15,6 +21,7 @@ import { Page } from "components/shared/Page";
 
 export default function SignIn() {
   const { login, errorMessage } = useAuthContext();
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -22,8 +29,8 @@ export default function SignIn() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      username: "admin",
-      password: "12345678",
+      username: "",
+      password: "",
     },
   });
 
@@ -50,7 +57,7 @@ export default function SignIn() {
             </div>
           </div>
           <Card className="mt-5 rounded-lg p-5 lg:p-7">
-            <div className="mb-4 rounded-lg border border-primary-500/20 bg-primary-500/10 p-2.5 text-center text-xs text-primary-700 dark:text-primary-300"><span className="font-semibold">????? ????? (Credentials):</span><p className="mt-0.5">Username: <b className="select-all">admin</b> &bull; Password: <b className="select-all">12345678</b></p></div><form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+            <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <div className="space-y-4">
                 <Input
                   label="Username"
@@ -67,12 +74,27 @@ export default function SignIn() {
                 <Input
                   label="Password"
                   placeholder="Enter Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   prefix={
                     <LockClosedIcon
                       className="size-5 transition-colors duration-200"
                       strokeWidth="1"
                     />
+                  }
+                  suffix={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="flex size-full items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none dark:text-dark-300 dark:hover:text-dark-100"
+                      tabIndex={-1}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeSlashIcon className="size-5" strokeWidth="1.5" />
+                      ) : (
+                        <EyeIcon className="size-5" strokeWidth="1.5" />
+                      )}
+                    </button>
                   }
                   {...register("password")}
                   error={errors?.password?.message}
@@ -111,29 +133,6 @@ export default function SignIn() {
                   Create account
                 </Link>
               </p>
-            </div>
-            <div className="my-7 flex items-center space-x-3 text-xs ">
-              <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
-              <p>OR</p>
-              <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
-            </div>
-            <div className="flex gap-4">
-              <Button className="h-10 flex-1 gap-3" variant="outlined">
-                <img
-                  className="size-5.5"
-                  src="/images/logos/google.svg"
-                  alt="logo"
-                />
-                <span>Google</span>
-              </Button>
-              <Button className="h-10 flex-1 gap-3" variant="outlined">
-                <img
-                  className="size-5.5"
-                  src="/images/logos/github.svg"
-                  alt="logo"
-                />
-                <span>Github</span>
-              </Button>
             </div>
           </Card>
           <div className="mt-8 flex justify-center text-xs text-gray-400 dark:text-dark-300">
