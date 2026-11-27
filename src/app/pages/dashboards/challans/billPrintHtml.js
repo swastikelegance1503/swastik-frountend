@@ -488,7 +488,7 @@ export function generateBillPrintHtml(challan) {
               challan.discount
                 ? `
             <div class="tax-row">
-              <span>Discount</span>
+              <span>Discount ${challan.discountRate ? `(${challan.discountRate}%)` : ""}</span>
               <span>-${formatCurrency(challan.discount)}</span>
             </div>`
                 : ""

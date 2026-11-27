@@ -87,6 +87,7 @@ const INITIAL_FORM = {
       amount: 5000,
     },
   ],
+  discountRate: 0,
   discount: 0,
   isGstApplicable: false,
   cgstRate: 2.5,
@@ -379,6 +380,8 @@ export default function ChallansPage() {
       billNo,
       challanNo,
       isGstApplicable: isSwastik, // Swastik Art defaults to GST
+      discountRate: 0,
+      discount: 0,
       items: [
         {
           srNo: 1,
@@ -397,6 +400,15 @@ export default function ChallansPage() {
   const handleOpenEdit = (c) => {
     setIsEditing(true);
     setEditingId(c._id);
+    const subTotal = Number(c.subTotal) || 0;
+    const discAmount = Number(c.discount) || 0;
+    const discRate =
+      c.discountRate !== undefined
+        ? Number(c.discountRate)
+        : subTotal > 0 && discAmount > 0
+          ? Number(((discAmount / subTotal) * 100).toFixed(2))
+          : 0;
+
     setFormData({
       firmName: c.firmName || "Astha Fashion",
       profileId: c.profile?._id || c.profile || "",
@@ -412,7 +424,8 @@ export default function ChallansPage() {
       date: c.date ? dayjs(c.date).format("YYYY-MM-DD") : "",
       dueDate: c.dueDate ? dayjs(c.dueDate).format("YYYY-MM-DD") : "",
       items: Array.isArray(c.items) && c.items.length > 0 ? c.items : [INITIAL_ITEM],
-      discount: c.discount || 0,
+      discountRate: discRate,
+      discount: discAmount,
       isGstApplicable: Boolean(c.isGstApplicable),
       cgstRate: c.cgstRate || 2.5,
       sgstRate: c.sgstRate || 2.5,
@@ -514,8 +527,9 @@ export default function ChallansPage() {
       (sum, item) => sum + (Number(item.qty) || 0),
       0,
     );
-    const disc = Math.max(0, Number(formData.discount) || 0);
-    const taxable = Math.max(0, subTotal - disc);
+    const discRate = Math.max(0, Number(formData.discountRate) || 0);
+    const discAmount = Number(((subTotal * discRate) / 100).toFixed(2));
+    const taxable = Math.max(0, Number((subTotal - discAmount).toFixed(2)));
 
     let cgst = 0;
     let sgst = 0;
@@ -537,6 +551,8 @@ export default function ChallansPage() {
     return {
       subTotal,
       totalQty,
+      discRate,
+      discAmount,
       taxable,
       cgst,
       sgst,
@@ -598,7 +614,15 @@ export default function ChallansPage() {
           rate: Number(item.rate),
           amount: Number(item.amount),
         })),
-        discount: Number(formData.discount) || 0,
+        discountRate: formCalculations.discRate,
+        discount: formCalculations.discAmount,
+        subTotal: formCalculations.subTotal,
+        totalAmountBeforeTax: formCalculations.taxable,
+        cgstAmount: formCalculations.cgst,
+        sgstAmount: formCalculations.sgst,
+        igstAmount: formCalculations.igst,
+        totalGst: formCalculations.totalGst,
+        grandTotal: formCalculations.grandTotal,
         isGstApplicable: Boolean(formData.isGstApplicable),
         cgstRate: Number(formData.cgstRate) || 0,
         sgstRate: Number(formData.sgstRate) || 0,
@@ -1846,19 +1870,39 @@ export default function ChallansPage() {
                             )}
 
                             <div>
-                              <Input
-                                type="number"
-                                label="ડિસ્કાઉન્ટ (Discount ₹)"
-                                placeholder="0"
-                                value={formData.discount}
-                                onChange={(e) =>
-                                  setFormData({
-                                    ...formData,
-                                    discount: Number(e.target.value),
-                                  })
-                                }
-                                min="0"
-                              />
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                  ડિસ્કાઉન્ટ (Discount %)
+                                </label>
+                                {formCalculations.discAmount > 0 && (
+                                  <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                                    -₹ {formatCurrency(formCalculations.discAmount)}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  step="0.01"
+                                  placeholder="0 %"
+                                  value={formData.discountRate ?? 0}
+                                  onChange={(e) =>
+                                    setFormData({
+                                      ...formData,
+                                      discountRate: e.target.value === "" ? "" : Number(e.target.value),
+                                    })
+                                  }
+                                  className="w-full h-9 px-3 pr-8 text-xs font-mono rounded-xl border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none">
+                                  %
+                                </span>
+                              </div>
+                              <p className="mt-1 text-[11px] text-gray-400">
+                                સબટોટલમાંથી {Number(formData.discountRate) || 0}% ડિસ્કાઉન્ટ બાદ થયા પછી કરપાત્ર રકમ પર GST ગણાશે.
+                              </p>
                             </div>
                           </div>
 
@@ -1876,11 +1920,11 @@ export default function ChallansPage() {
                                 ₹ {formatCurrency(formCalculations.subTotal)}
                               </span>
                             </div>
-                            {formData.discount > 0 && (
-                              <div className="flex justify-between text-amber-600">
-                                <span>ડિસ્કાઉન્ટ:</span>
+                            {formCalculations.discAmount > 0 && (
+                              <div className="flex justify-between text-amber-600 font-medium">
+                                <span>ડિસ્કાઉન્ટ ({formCalculations.discRate}%):</span>
                                 <span className="font-mono">
-                                  -₹ {formatCurrency(formData.discount)}
+                                  -₹ {formatCurrency(formCalculations.discAmount)}
                                 </span>
                               </div>
                             )}
