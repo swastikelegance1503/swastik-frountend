@@ -45,6 +45,7 @@ import {
 } from "components/ui";
 import { Page } from "components/shared/Page";
 import axios from "utils/axios";
+import { JWT_HOST_API } from "configs/auth.config";
 import {
   generateDeliveryChallanPrintHtml,
   printDeliveryChallanIframe,
