@@ -38,6 +38,10 @@ import {
   Th,
   Td,
   Spinner,
+  Pagination,
+  PaginationItems,
+  PaginationNext,
+  PaginationPrevious,
 } from "components/ui";
 import { Page } from "components/shared/Page";
 import axios from "utils/axios";
@@ -226,6 +230,21 @@ export default function ChallansPage() {
     );
     return { totalBills, totalQty, taxableAmount, totalGst, grandTotal };
   }, [challans]);
+
+  // Pagination State (25 items per page)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedFirm, statusFilter, startDate, endDate, search]);
+
+  const totalPages = Math.ceil(challans.length / pageSize) || 1;
+  const activePage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedChallans = useMemo(() => {
+    return challans.slice(startIndex, startIndex + pageSize);
+  }, [challans, startIndex, pageSize]);
 
   // Google Drive Action Handlers (swastikelegance065@gmail.com)
   const handleSaveDriveConfig = async (e) => {
@@ -1079,7 +1098,7 @@ export default function ChallansPage() {
                     </Tr>
                   </THead>
                   <TBody className="divide-y divide-gray-150 dark:divide-dark-600 text-sm">
-                    {challans.map((c, idx) => {
+                    {paginatedChallans.map((c, idx) => {
                       const isSwastik = c.firmName?.toLowerCase().includes("swastik");
                       return (
                         <Tr
@@ -1087,7 +1106,7 @@ export default function ChallansPage() {
                           className="transition-colors hover:bg-gray-50/70 dark:hover:bg-dark-600/40"
                         >
                           <Td className="py-4 px-3 text-center font-mono text-xs text-gray-400">
-                            {idx + 1}
+                            {startIndex + idx + 1}
                           </Td>
 
                           {/* Bill & Challan No */}
@@ -1297,6 +1316,51 @@ export default function ChallansPage() {
                   </TBody>
                 </Table>
               </div>
+
+              {/* Pagination Section (25 Items Per Page) */}
+              {challans.length > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-dark-750 border-t border-gray-200 dark:border-dark-600">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span>
+                      કુલ <strong className="text-gray-900 dark:text-white font-mono">{challans.length}</strong> માંથી{" "}
+                      <strong className="text-gray-900 dark:text-white font-mono">
+                        {startIndex + 1} - {Math.min(startIndex + pageSize, challans.length)}
+                      </strong>{" "}
+                      દર્શાવેલ છે
+                    </span>
+                    <span className="text-gray-300 dark:text-dark-500">|</span>
+                    <span className="flex items-center gap-1.5">
+                      <span>પ્રતિ પેજ:</span>
+                      <select
+                        value={pageSize}
+                        onChange={(e) => {
+                          setPageSize(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className="h-7 text-xs rounded-lg border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-700 text-gray-800 dark:text-white px-2 focus:outline-none"
+                      >
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </span>
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div>
+                      <Pagination
+                        total={totalPages}
+                        value={activePage}
+                        onChange={(p) => setCurrentPage(p)}
+                      >
+                        <PaginationPrevious />
+                        <PaginationItems />
+                        <PaginationNext />
+                      </Pagination>
+                    </div>
+                  )}
+                </div>
+              )}
             </Card>
           )}
         </>
